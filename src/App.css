@@ -1,0 +1,716 @@
+.App {
+  text-align: left;
+}
+
+/* Authentication Header Styles */
+.auth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.welcome-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.current-role {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.logout-btn {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.logout-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+
+/* Role Switcher Styles (legacy - can be removed) */
+.role-switcher {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin: 1rem 0;
+  padding: 0 1rem;
+}
+
+.role-btn {
+  background: #f0f0f0;
+  color: #333;
+  border: 2px solid #ddd;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  border-radius: 0;
+  border-right: none;
+}
+
+.role-btn:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.role-btn:last-child {
+  border-radius: 0 8px 8px 0;
+  border-right: 2px solid #ddd;
+}
+
+.role-btn:hover {
+  background: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.role-btn.active {
+  background: #646cff;
+  color: white;
+  border-color: #646cff;
+  box-shadow: 0 4px 8px rgba(100, 108, 255, 0.3);
+}
+
+/* User Interface Styles */
+.user-interface {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.user-intro {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.user-stats {
+  margin: 2rem 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #333;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #646cff;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.available-lists h3 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.list-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+  color: #333;
+}
+
+.list-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.list-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #000;
+}
+
+.list-description {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.list-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Simple Bulk Entry Styles */
+.simple-bulk-entry {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.alert-info {
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  color: #1976d2;
+}
+
+.reading-group {
+  margin-bottom: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.group-header {
+  background: #f8f9fa;
+  padding: 1rem;
+  margin: 0;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.component-tag {
+  background: #646cff;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.reading-type {
+  color: #000;
+  font-weight: normal;
+}
+
+/* Specific override for SimpleBulkEntry group headers */
+.simple-bulk-entry h4.group-header,
+.simple-bulk-entry .group-header h4,
+.reading-group h4.group-header {
+  color: #000 !important;
+  background: #f8f9fa;
+  padding: 1rem;
+  margin: 0;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Also override any inherited h4 styles */
+h4.group-header {
+  color: #000 !important;
+}
+
+/* Simple bulk entry specific group header */
+.simple-group-header {
+  color: #000 !important;
+  background: #f8f9fa;
+  padding: 1rem;
+  margin: 0;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Location header above everything */
+.location-header {
+  background: #e8f5e8;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #4caf50;
+  text-align: left;
+}
+
+.location-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2e7d32;
+  display: inline-block;
+}
+
+/* Component header above the reading group */
+.component-header {
+  background: #e8f4f8;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.component-header .component-tag {
+  background: #646cff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.reading-inputs {
+  padding: 1rem;
+}
+
+.reading-input-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.point-info {
+  flex: 1;
+}
+
+.point-info strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.point-details {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reading-value {
+  width: 120px;
+  text-align: right;
+}
+
+.input-unit {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: bold;
+  min-width: 40px;
+}
+
+/* Super Admin Interface Styles */
+.super-admin-interface {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.super-admin-controls {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border-left: 4px solid #dc3545;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-warning {
+  background: #ffc107;
+  color: #000;
+  border: 1px solid #ffc107;
+}
+
+.btn-warning:hover {
+  background: #ffb300;
+  border-color: #ffb300;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: 1px solid #6c757d;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+  border-color: #5a6268;
+}
+
+.file-input-label {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.field-management {
+  margin-bottom: 2rem;
+}
+
+.field-section {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 2rem;
+  color: #333;
+}
+
+.field-section h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.section-description {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.add-value-form {
+  margin-bottom: 2rem;
+}
+
+.input-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.input-group .form-control {
+  flex: 1;
+}
+
+.values-list h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.value-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8f9fa;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.value-text {
+  flex: 1;
+  color: #333;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  border: 1px solid #dc3545;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  border-color: #c82333;
+}
+
+.units-section {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 2rem;
+  color: #333;
+}
+
+.unit-type-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.unit-type-section:last-child {
+  border-bottom: none;
+}
+
+.unit-type-section h4 {
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
+.add-unit-form {
+  margin-bottom: 1rem;
+}
+
+.units-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.unit-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #e3f2fd;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  border: 1px solid #2196f3;
+}
+
+.unit-text {
+  color: #1565c0;
+  font-weight: 500;
+}
+
+.field-summary {
+  background: #e8f5e8;
+  border: 1px solid #4caf50;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.field-summary h3 {
+  color: #2e7d32;
+  margin-bottom: 1rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.summary-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 4px;
+  border-left: 3px solid #4caf50;
+  color: #333;
+}
+
+.summary-item strong {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+/* Reading Types Management */
+.reading-types-section {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 2rem;
+  color: #333;
+}
+
+.add-reading-type-form {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.add-reading-type-form h4 {
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.reading-types-list h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.reading-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.reading-type-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e3f2fd;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #2196f3;
+}
+
+.reading-type-info {
+  flex: 1;
+}
+
+.reading-type-info strong {
+  color: #1565c0;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.reading-type-units {
+  font-size: 0.85rem;
+  color: #424242;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .reading-types-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.app-header {
+  background: linear-gradient(135deg, #646cff, #535bf2);
+  color: white;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+}
+
+.app-header h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.nav-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 1rem;
+}
+
+.nav-tab {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  border-radius: 0;
+}
+
+.nav-tab:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.nav-tab:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.nav-tab:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-tab.active {
+  background: rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+}
+
+.view {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.view h2 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .nav-tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .nav-tab {
+    border-radius: 8px !important;
+    margin-bottom: 0.5rem;
+    width: 200px;
+  }
+  
+  .view {
+    padding: 1rem;
+  }
+}
