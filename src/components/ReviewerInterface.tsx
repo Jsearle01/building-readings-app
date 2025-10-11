@@ -168,9 +168,6 @@ const ReviewerInterface: React.FC<ReviewerInterfaceProps> = ({
               <option value="all">📋 All Submissions ({submissions.length})</option>
             </select>
           </label>
-          <div className="filter-debug" style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>
-            Currently showing: {filterStatus} ({filteredSubmissions.length} items)
-          </div>
         </div>
 
         {pendingCount > 0 && filterStatus === 'pending' && (
@@ -208,7 +205,7 @@ const ReviewerInterface: React.FC<ReviewerInterfaceProps> = ({
                   : `No submissions with "${filterStatus}" status found.`
                 }
               </p>
-              <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '8px' }}>
+              <div style={{ fontSize: '0.8rem', color: '#495057', marginTop: '8px' }}>
                 Total submissions in system: {submissions.length} | 
                 Current filter: {filterStatus} | 
                 Filtered results: {filteredSubmissions.length}
@@ -259,7 +256,7 @@ const ReviewerInterface: React.FC<ReviewerInterfaceProps> = ({
                         <strong>Review:</strong> {submission.reviewComments}
                       </div>
                       <div className="review-meta">
-                        By {submission.reviewedBy ? getUserDisplayName(submission.reviewedBy) : 'Unknown'} on {submission.reviewedAt && formatTimestamp(submission.reviewedAt)}
+                        By {submission.reviewerName || (submission.reviewedBy ? getUserDisplayName(submission.reviewedBy) : 'Unknown')} on {submission.reviewedAt && formatTimestamp(submission.reviewedAt)}
                       </div>
                     </div>
                   )}
@@ -317,6 +314,35 @@ const ReviewerInterface: React.FC<ReviewerInterfaceProps> = ({
                 <div className="submission-notes">
                   <label>Submitter Notes:</label>
                   <div className="notes-content">{selectedSubmission.submissionNotes}</div>
+                </div>
+              )}
+
+              {/* Review Information Section */}
+              {selectedSubmission.status !== 'pending' && selectedSubmission.reviewedAt && (
+                <div className="review-information">
+                  <h4>Review Information</h4>
+                  <div className="review-meta-grid">
+                    <div className="meta-item">
+                      <label>Review Status:</label>
+                      <span className={`status-badge ${getStatusBadgeClass(selectedSubmission.status)}`}>
+                        {selectedSubmission.status.replace('_', ' ').toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="meta-item">
+                      <label>Reviewed By:</label>
+                      <span>{selectedSubmission.reviewerName || (selectedSubmission.reviewedBy ? getUserDisplayName(selectedSubmission.reviewedBy) : 'Unknown')}</span>
+                    </div>
+                    <div className="meta-item">
+                      <label>Review Date:</label>
+                      <span>{formatTimestamp(selectedSubmission.reviewedAt)}</span>
+                    </div>
+                    {selectedSubmission.reviewComments && (
+                      <div className="meta-item full-width">
+                        <label>Review Comments:</label>
+                        <div className="review-comments-display">{selectedSubmission.reviewComments}</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -401,7 +427,7 @@ const ReviewerInterface: React.FC<ReviewerInterfaceProps> = ({
                     <strong>Comments:</strong> {selectedSubmission.reviewComments}
                   </div>
                   <div className="review-signature">
-                    <strong>Reviewed by:</strong> {selectedSubmission.reviewedBy ? getUserDisplayName(selectedSubmission.reviewedBy) : 'Unknown'} on {selectedSubmission.reviewedAt && formatTimestamp(selectedSubmission.reviewedAt)}
+                    <strong>Reviewed by:</strong> {selectedSubmission.reviewerName || (selectedSubmission.reviewedBy ? getUserDisplayName(selectedSubmission.reviewedBy) : 'Unknown')} on {selectedSubmission.reviewedAt && formatTimestamp(selectedSubmission.reviewedAt)}
                   </div>
                 </div>
               </div>

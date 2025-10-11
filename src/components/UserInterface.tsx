@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { BuildingReading, ReadingPoint, ReadingPointList, ReviewSubmission, PointCompletion } from '../types';
 import BulkReadingForm from './BulkReadingForm';
+import './UserInterface.css';
 
 interface UserInterfaceProps {
   readingPoints: ReadingPoint[];
   readingPointLists: ReadingPointList[];
+  readings: BuildingReading[]; // Add readings for trend analysis
   currentUserId: string;
   currentUserName?: string;
   onAddBulkReadings: (readings: BuildingReading[]) => void;
@@ -14,6 +16,7 @@ interface UserInterfaceProps {
 const UserInterface: React.FC<UserInterfaceProps> = ({
   readingPoints,
   readingPointLists,
+  readings, // Add readings parameter
   currentUserId,
   currentUserName,
   onAddBulkReadings,
@@ -30,8 +33,11 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
 
   // Filter reading points and lists based on selected room
   const getFilteredData = () => {
+    // First filter lists by availability date
+    const availableLists = readingPointLists.filter(list => isCompletionDateValid(list).isValid);
+    
     if (!selectedRoom) {
-      return { filteredPoints: readingPoints, filteredLists: readingPointLists };
+      return { filteredPoints: readingPoints, filteredLists: availableLists };
     }
 
     const [building, floor, room] = selectedRoom.split('-');
@@ -44,9 +50,9 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
       point.isActive
     );
 
-    // Filter lists to only include those that have points in the selected room
+    // Filter available lists to only include those that have points in the selected room
     const relevantPointIds = new Set(filteredPoints.map(p => p.id));
-    const filteredLists = readingPointLists.filter(list => 
+    const filteredLists = availableLists.filter(list => 
       list.pointIds.some(pointId => relevantPointIds.has(pointId))
     ).map(list => ({
       ...list,
@@ -54,6 +60,27 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
     })).filter(list => list.pointIds.length > 0);
 
     return { filteredPoints, filteredLists };
+  };
+
+  // Helper function to check if today matches the expected completion date
+  const isCompletionDateValid = (list: ReadingPointList): { isValid: boolean; message?: string } => {
+    if (!list.expectedCompletionDate) {
+      return { isValid: true }; // No restriction if no date is set
+    }
+    
+    const today = new Date().toISOString().split('T')[0]; // Today in YYYY-MM-DD format
+    const expectedDate = list.expectedCompletionDate;
+    
+    // Allow completion if the list is due today OR OVERDUE (before today)
+    if (expectedDate <= today) {
+      return { isValid: true };
+    } else {
+      const expectedDateFormatted = new Date(expectedDate + 'T00:00:00').toLocaleDateString();
+      return { 
+        isValid: false, 
+        message: `Available on ${expectedDateFormatted}`
+      };
+    }
   };
 
   const { filteredPoints, filteredLists } = getFilteredData();
@@ -194,6 +221,7 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
             onSubmitForReview={handleSubmitForReview}
             readingPoints={filteredPoints}
             readingPointLists={filteredLists}
+            readings={readings} // Add readings for trend analysis
             currentUserId={currentUserId}
             currentUserName={currentUserName}
             requiresReview={true}
@@ -243,7 +271,7 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
           <div className="available-lists">
             <h3>📋 {selectedRoom ? 'Room Reading Lists' : 'Available Reading Lists'}</h3>
             <div className="lists-grid">
-              {(selectedRoom ? filteredLists : readingPointLists).map(list => {
+              {(selectedRoom ? filteredLists : filteredLists).map(list => {
                 const relevantPoints = selectedRoom ? filteredPoints : readingPoints;
                 const activePoints = relevantPoints.filter(p => 
                   list.pointIds.includes(p.id) && p.isActive
@@ -251,7 +279,14 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
                 
                 return (
                   <div key={list.id} className="list-card">
-                    <h4>{list.name}</h4>
+                    <div className="list-header">
+                      <h4>{list.name}</h4>
+                      {list.expectedCompletionDate && (
+                        <div className="completion-date available">
+                          ✅ Due Today
+                        </div>
+                      )}
+                    </div>
                     {list.description && (
                       <p className="list-description">{list.description}</p>
                     )}

@@ -82,6 +82,50 @@ function App() {
   };
 
   // Load data from localStorage on component mount
+  // Create realistic test data with overdue lists
+  useEffect(() => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const twoDaysAgo = new Date(today);
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    
+    const realTestLists: ReadingPointList[] = [
+      {
+        id: 'daily-rounds',
+        name: 'Daily Building Monitoring Rounds',
+        description: 'Comprehensive daily monitoring of all key building systems including HVAC, electrical, plumbing, environmental controls, and energy consumption',
+        pointIds: ['point-1', 'point-1b', 'point-2', 'point-2b', 'point-3', 'point-3b', 'point-4', 'point-4b', 'point-5', 'point-5b'],
+        expectedCompletionDate: today.toISOString().split('T')[0],
+        createdBy: 'admin123',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: 'emergency-systems-overdue',
+        name: 'Emergency Systems Check (OVERDUE)',
+        description: 'Overdue emergency systems verification - fire alarms, sprinklers, emergency lighting, and safety equipment',
+        pointIds: ['point-1', 'point-2', 'point-3'],
+        expectedCompletionDate: yesterday.toISOString().split('T')[0],
+        createdBy: 'admin123',
+        createdAt: yesterday.toISOString(),
+        updatedAt: yesterday.toISOString()
+      },
+      {
+        id: 'hvac-quarterly-overdue',
+        name: 'HVAC Quarterly Inspection (OVERDUE)',
+        description: 'Overdue quarterly HVAC system inspection and maintenance verification',
+        pointIds: ['point-4', 'point-5', 'point-1b', 'point-2b'],
+        expectedCompletionDate: twoDaysAgo.toISOString().split('T')[0],
+        createdBy: 'admin123',
+        createdAt: twoDaysAgo.toISOString(),
+        updatedAt: twoDaysAgo.toISOString()
+      }
+    ];
+    
+    setReadingPointLists(realTestLists);
+  }, []);
+
   useEffect(() => {
     try {
       // Load user database first
@@ -112,6 +156,142 @@ function App() {
         const parsedReadings = JSON.parse(savedReadings);
         setReadings(parsedReadings);
         setFilteredReadings(parsedReadings);
+      } else {
+        // Create default dummy readings if none exist
+        const defaultReadings: BuildingReading[] = [
+          // Numeric readings for range validation points
+          {
+            id: 'reading-1',
+            buildingName: 'Main Office Building',
+            floor: 'Ground Floor',
+            room: 'Lobby',
+            readingType: 'temperature',
+            value: 22.5,
+            unit: '°C',
+            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+            pointId: 'point-1',
+            userInfo: 'admin'
+          },
+          {
+            id: 'reading-2',
+            buildingName: 'Main Office Building',
+            floor: 'First Floor',
+            room: 'Server Room',
+            readingType: 'humidity',
+            value: 45.2,
+            unit: '%',
+            timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
+            pointId: 'point-2',
+            userInfo: 'admin'
+          },
+          {
+            id: 'reading-3',
+            buildingName: 'Main Office Building',
+            floor: 'Second Floor',
+            room: 'Conference Room A',
+            readingType: 'lighting',
+            value: 750,
+            unit: 'lux',
+            timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
+            pointId: 'point-3b',
+            userInfo: 'admin'
+          },
+          // SAT/UNSAT readings for validation points
+          {
+            id: 'reading-4',
+            buildingName: 'Main Office Building',
+            floor: 'Ground Floor',
+            room: 'Lobby',
+            readingType: 'occupancy',
+            value: 'SAT',
+            unit: 'people',
+            timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
+            pointId: 'point-1b',
+            userInfo: 'admin',
+            notes: 'Normal occupancy levels observed'
+          },
+          {
+            id: 'reading-5',
+            buildingName: 'Main Office Building',
+            floor: 'Second Floor',
+            room: 'Conference Room A',
+            readingType: 'energy',
+            value: 'UNSAT',
+            unit: 'kWh',
+            timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 minutes ago
+            pointId: 'point-3',
+            userInfo: 'admin',
+            notes: 'Energy consumption higher than expected'
+          },
+          {
+            id: 'reading-6',
+            buildingName: 'Main Office Building',
+            floor: 'Ground Floor',
+            room: 'Kitchen',
+            readingType: 'gas',
+            value: 'SAT',
+            unit: 'm³',
+            timestamp: new Date(Date.now() - 20 * 60 * 1000).toISOString(), // 20 minutes ago
+            pointId: 'point-4b',
+            userInfo: 'admin',
+            notes: 'Gas consumption within normal range'
+          },
+          {
+            id: 'reading-7',
+            buildingName: 'Main Office Building',
+            floor: 'Basement',
+            room: 'Parking Garage',
+            readingType: 'energy',
+            value: 'SAT',
+            unit: 'kWh',
+            timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 minutes ago
+            pointId: 'point-5b',
+            userInfo: 'admin',
+            notes: 'Exhaust fan energy consumption satisfactory'
+          },
+          // Additional historic readings for trend analysis
+          {
+            id: 'reading-8',
+            buildingName: 'Main Office Building',
+            floor: 'Ground Floor',
+            room: 'Lobby',
+            readingType: 'temperature',
+            value: 21.8,
+            unit: '°C',
+            timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+            pointId: 'point-1',
+            userInfo: 'admin'
+          },
+          {
+            id: 'reading-9',
+            buildingName: 'Main Office Building',
+            floor: 'Ground Floor',
+            room: 'Lobby',
+            readingType: 'occupancy',
+            value: 'UNSAT',
+            unit: 'people',
+            timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12 hours ago
+            pointId: 'point-1b',
+            userInfo: 'admin',
+            notes: 'Overcrowding in lobby area'
+          },
+          {
+            id: 'reading-10',
+            buildingName: 'Main Office Building',
+            floor: 'Second Floor',
+            room: 'Conference Room A',
+            readingType: 'energy',
+            value: 'SAT',
+            unit: 'kWh',
+            timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+            pointId: 'point-3',
+            userInfo: 'admin',
+            notes: 'Energy usage within acceptable limits'
+          }
+        ];
+        console.log('📊 DUMMY DATA LOADED: 10 sample readings created (mix of numeric and SAT/UNSAT)!');
+        setReadings(defaultReadings);
+        setFilteredReadings(defaultReadings);
       }
       
       if (savedPoints) {
@@ -132,7 +312,10 @@ function App() {
             component: 'HVAC-01',
             description: 'Primary temperature monitoring for lobby HVAC system',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'range',
+            minValue: 18,
+            maxValue: 25
           },
           {
             id: 'point-1b',
@@ -145,7 +328,10 @@ function App() {
             component: 'Security-01',
             description: 'People counting system for lobby area traffic monitoring',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'sat_unsat',
+            minValue: 0,
+            maxValue: 150
           },
           {
             id: 'point-2',
@@ -158,7 +344,10 @@ function App() {
             component: 'Environmental-01',
             description: 'Critical humidity monitoring for server equipment protection',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'range',
+            minValue: 40,
+            maxValue: 60
           },
           {
             id: 'point-2b',
@@ -171,7 +360,10 @@ function App() {
             component: 'HVAC-02',
             description: 'Precision temperature control for server rack cooling',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'range',
+            minValue: 16,
+            maxValue: 22
           },
           {
             id: 'point-3',
@@ -184,7 +376,10 @@ function App() {
             component: 'Electrical-02',
             description: 'Energy consumption monitoring for conference room electrical systems',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'sat_unsat',
+            minValue: 0,
+            maxValue: 50
           },
           {
             id: 'point-3b',
@@ -197,7 +392,10 @@ function App() {
             component: 'Lighting-01',
             description: 'Automated lighting level monitoring and control system',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'range',
+            minValue: 300,
+            maxValue: 1000
           },
           {
             id: 'point-4',
@@ -210,7 +408,10 @@ function App() {
             component: 'Plumbing-01',
             description: 'Water usage monitoring for kitchen facilities',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'range',
+            minValue: 0,
+            maxValue: 500
           },
           {
             id: 'point-4b',
@@ -223,7 +424,10 @@ function App() {
             component: 'Gas-01',
             description: 'Natural gas consumption monitoring for kitchen equipment',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'sat_unsat',
+            minValue: 0,
+            maxValue: 100
           },
           {
             id: 'point-5',
@@ -236,7 +440,10 @@ function App() {
             component: 'Ventilation-01',
             description: 'Air quality monitoring for parking garage ventilation system',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'range',
+            minValue: 0,
+            maxValue: 1000
           },
           {
             id: 'point-5b',
@@ -249,7 +456,10 @@ function App() {
             component: 'Ventilation-02',
             description: 'Energy consumption monitoring for parking garage exhaust fans',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            validationType: 'sat_unsat',
+            minValue: 0,
+            maxValue: 25
           }
         ];
         console.log('🎯 Creating default reading points:', defaultPoints);
@@ -259,24 +469,10 @@ function App() {
       
       if (savedLists) {
         const parsedLists = JSON.parse(savedLists);
-        console.log('Parsed lists:', parsedLists);
         setReadingPointLists(parsedLists);
       } else {
-        // Create default reading point list if none exist
-        const defaultList: ReadingPointList = {
-          id: 'list-1',
-          name: 'Daily Building Monitoring Rounds',
-          description: 'Comprehensive daily monitoring of all key building systems including HVAC, electrical, plumbing, environmental controls, occupancy, and energy consumption',
-          pointIds: ['point-1', 'point-1b', 'point-2', 'point-2b', 'point-3', 'point-3b', 'point-4', 'point-4b', 'point-5', 'point-5b'],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        console.log('📋 Creating default reading point list:', defaultList);
-        console.log('📝 DUMMY DATA LOADED: 1 reading list created with all 10 points!');
-        setReadingPointLists([defaultList]);
-      }
-
-      if (savedFieldDefinitions) {
+        // If no saved lists, the first useEffect will create default test data
+      }      if (savedFieldDefinitions) {
         const parsedFieldDefinitions = JSON.parse(savedFieldDefinitions);
         console.log('Parsed field definitions:', parsedFieldDefinitions);
         setFieldDefinitions(parsedFieldDefinitions);
@@ -441,10 +637,16 @@ function App() {
         const newStatus = action.action === 'approve' ? 'approved' : 
                          action.action === 'reject' ? 'rejected' : 'needs_revision';
         
+        // Get reviewer information for better audit trail
+        const allUsers = getAllUsers();
+        const reviewer = allUsers.find(user => user.id === action.reviewedBy);
+        const reviewerName = reviewer?.fullName || reviewer?.username || 'Unknown Reviewer';
+        
         const updatedSubmission = {
           ...submission,
           status: newStatus as any,
-          reviewedBy: action.reviewedBy,
+          reviewedBy: action.reviewedBy, // Keep the ID for system tracking
+          reviewerName: reviewerName, // Add reviewer name for display
           reviewedAt: new Date().toISOString(),
           reviewComments: action.comments
         };
@@ -457,13 +659,10 @@ function App() {
         // Send email notification to submitter about status change
         (async () => {
           try {
-            const allUsers = getAllUsers();
             const submitter = allUsers.find(user => user.id === submission.submittedBy);
-            const reviewer = allUsers.find(user => user.id === action.reviewedBy);
             
             if (submitter?.email) {
               const submitterName = submitter.fullName || submitter.username;
-              const reviewerName = reviewer?.fullName || reviewer?.username || 'System';
               
               await emailService.notifySubmitterOfStatusChange(
                 updatedSubmission,
@@ -522,14 +721,13 @@ function App() {
           ) : authState.currentRole === 'admin' ? (
             <AdminInterface
               readings={readings}
-              filteredReadings={filteredReadings}
               readingPoints={readingPoints}
               readingPointLists={readingPointLists}
               selectedReadingType={selectedReadingType}
               selectedBuilding={selectedBuilding}
               chartType={chartType}
               fieldDefinitions={fieldDefinitions}
-              onAddBulkReadings={addBulkReadings}
+              currentUserId={authState.currentUser?.id}
               onDeleteReading={deleteReading}
               onAddReadingPoint={addReadingPoint}
               onUpdateReadingPoint={updateReadingPoint}
@@ -544,6 +742,7 @@ function App() {
             <UserInterface
               readingPoints={readingPoints}
               readingPointLists={readingPointLists}
+              readings={readings} // Add readings for trend analysis
               currentUserId={authState.currentUser?.id || ''}
               currentUserName={authState.currentUser?.fullName || authState.currentUser?.username || ''}
               onAddBulkReadings={addBulkReadings}

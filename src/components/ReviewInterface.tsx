@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ReviewSubmission, ReviewAction, ReviewStatus, BuildingReading } from '../types';
+import { getAllUsers } from '../auth';
 import './ReviewInterface.css';
 
 interface ReviewInterfaceProps {
@@ -16,6 +17,13 @@ const ReviewInterface: React.FC<ReviewInterfaceProps> = ({
   const [selectedSubmission, setSelectedSubmission] = useState<ReviewSubmission | null>(null);
   const [reviewComments, setReviewComments] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<ReviewStatus | 'all'>('all');
+
+  // Helper function to get user display name
+  const getUserDisplayName = (userId: string): string => {
+    const users = getAllUsers();
+    const user = users.find(u => u.id === userId);
+    return user?.fullName || user?.username || userId;
+  };
 
   const filteredSubmissions = submissions.filter(submission => 
     filterStatus === 'all' || submission.status === filterStatus
@@ -111,7 +119,7 @@ const ReviewInterface: React.FC<ReviewInterfaceProps> = ({
                   </div>
                   
                   <div className="submission-info">
-                    <p><strong>Submitted by:</strong> {submission.submittedBy}</p>
+                    <p><strong>Submitted by:</strong> {getUserDisplayName(submission.submittedBy)}</p>
                     {submission.listName && (
                       <p><strong>Reading List:</strong> {submission.listName}</p>
                     )}
@@ -127,7 +135,10 @@ const ReviewInterface: React.FC<ReviewInterfaceProps> = ({
                   {submission.reviewComments && (
                     <div className="review-feedback">
                       <p><strong>Review Comments:</strong> {submission.reviewComments}</p>
-                      <p><small>Reviewed by: {submission.reviewedBy} on {submission.reviewedAt && formatTimestamp(submission.reviewedAt)}</small></p>
+                      <p><small>
+                        Reviewed by: {submission.reviewerName || (submission.reviewedBy ? getUserDisplayName(submission.reviewedBy) : 'Unknown')}
+                        {submission.reviewedAt && ` on ${formatTimestamp(submission.reviewedAt)}`}
+                      </small></p>
                     </div>
                   )}
                 </div>
@@ -159,11 +170,34 @@ const ReviewInterface: React.FC<ReviewInterfaceProps> = ({
               </div>
               <div className="meta-row">
                 <span><strong>Submitted:</strong> {formatTimestamp(selectedSubmission.submittedAt)}</span>
-                <span><strong>By:</strong> {selectedSubmission.submittedBy}</span>
+                <span><strong>By:</strong> {getUserDisplayName(selectedSubmission.submittedBy)}</span>
               </div>
               {selectedSubmission.listName && (
                 <div className="meta-row">
                   <span><strong>Reading List:</strong> {selectedSubmission.listName}</span>
+                </div>
+              )}
+              
+              {selectedSubmission.status !== 'pending' && selectedSubmission.reviewedAt && (
+                <div className="review-info-section">
+                  <h4>Review Information</h4>
+                  <div className="meta-row">
+                    <span><strong>Status:</strong> 
+                      <span className={`status-badge ${getStatusBadgeClass(selectedSubmission.status)}`}>
+                        {selectedSubmission.status.replace('_', ' ').toUpperCase()}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="meta-row">
+                    <span><strong>Reviewed by:</strong> {selectedSubmission.reviewerName || (selectedSubmission.reviewedBy ? getUserDisplayName(selectedSubmission.reviewedBy) : 'Unknown')}</span>
+                    <span><strong>Reviewed on:</strong> {formatTimestamp(selectedSubmission.reviewedAt)}</span>
+                  </div>
+                  {selectedSubmission.reviewComments && (
+                    <div className="review-comments-display">
+                      <strong>Review Comments:</strong>
+                      <p>{selectedSubmission.reviewComments}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

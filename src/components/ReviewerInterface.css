@@ -386,6 +386,42 @@
   line-height: 1.5;
 }
 
+/* Review Information Section */
+.review-information {
+  background: #e8f4fd;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #17a2b8;
+  margin-bottom: 2rem;
+}
+
+.review-information h4 {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.review-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.review-meta-grid .meta-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.review-comments-display {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 4px;
+  color: #495057;
+  line-height: 1.5;
+  margin-top: 0.25rem;
+  border: 1px solid #dee2e6;
+}
+
 .readings-review {
   margin-bottom: 2rem;
 }

@@ -28,15 +28,6 @@ const UserManagement: React.FC = () => {
     setUsers(allUsers);
   };
 
-  const resetToDefaultUsers = () => {
-    if (window.confirm('This will reset the user database to default users. Are you sure?')) {
-      // Clear localStorage
-      localStorage.removeItem('userDatabase');
-      // Reload the page to get fresh default users
-      window.location.reload();
-    }
-  };
-
   const resetForm = () => {
     setFormData({
       username: '',
@@ -187,29 +178,20 @@ const UserManagement: React.FC = () => {
 
   return (
     <div className="user-management">
-      <div className="section-header">
-        <h3>👥 User Management</h3>
-        <div className="header-actions">
-          <button 
-            className="btn btn-secondary"
-            onClick={resetToDefaultUsers}
-            title="Reset to default users"
-          >
-            🔄 Reset Users
-          </button>
-          <button 
-            className="btn btn-primary"
-            onClick={() => setShowAddForm(true)}
-            disabled={showAddForm || !!editingUser}
-          >
-            ➕ Add New User
-          </button>
-        </div>
-      </div>
-
       {(success || error) && (
         <div className={`alert ${success ? 'alert-success' : 'alert-error'}`}>
           {success || error}
+        </div>
+      )}
+
+      {!showAddForm && !editingUser && (
+        <div style={{ marginBottom: '1rem' }}>
+          <button 
+            className="btn btn-primary"
+            onClick={() => setShowAddForm(true)}
+          >
+            ➕ Add New User
+          </button>
         </div>
       )}
 
@@ -296,101 +278,11 @@ const UserManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Edit User Form */}
-      {editingUser && (
-        <div className="user-form-container">
-          <form onSubmit={handleUpdateUser} className="user-form">
-            <h4>✏️ Edit User: {editingUser.username}</h4>
-            
-            <div className="form-row">
-              <div className="form-group">
-                <label>Username *</label>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData(prev => ({...prev, username: e.target.value}))}
-                  placeholder="Enter username"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>New Password (leave blank to keep current)</label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData(prev => ({...prev, password: e.target.value}))}
-                  placeholder="Enter new password (min 6 characters)"
-                  minLength={6}
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData(prev => ({...prev, fullName: e.target.value}))}
-                  placeholder="Enter full name"
-                />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
-                  placeholder="Enter email address"
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Roles * (Select at least one)</label>
-              <div className="role-checkboxes">
-                {(['superadmin', 'admin', 'user'] as UserRole[]).map(role => (
-                  <label key={role} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={formData.roles.includes(role)}
-                      onChange={() => handleRoleToggle(role)}
-                    />
-                    <span>{getRoleDisplayName(role)}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
-                💾 Update User
-              </button>
-              <button 
-                type="button" 
-                className="btn btn-secondary"
-                onClick={cancelEdit}
-              >
-                ❌ Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      {/* Edit User Form - Now rendered inline below selected user */}
 
       {/* Users List */}
       <div className="users-list">
-        <h4>All Users ({users.length})</h4>
-        
-        {/* Debug information */}
-        <div style={{ background: '#f0f0f0', padding: '10px', margin: '10px 0', fontSize: '12px' }}>
-          <strong>Debug Info:</strong> Users array length: {users.length}
-          {users.length > 0 && (
-            <div>
-              First user: {JSON.stringify(users[0], null, 2)}
-            </div>
-          )}
-        </div>
+        <h4>All Users</h4>
         
         {users.length === 0 ? (
           <div className="no-data">No users found</div>
@@ -410,42 +302,130 @@ const UserManagement: React.FC = () => {
               </thead>
               <tbody>
                 {users.map(user => (
-                  <tr key={user.id}>
-                    <td>
-                      <strong>{user.username}</strong>
-                    </td>
-                    <td>{user.fullName || '-'}</td>
-                    <td>{user.email || '-'}</td>
-                    <td>
-                      <div className="user-roles">
-                        {user.roles.map(role => (
-                          <span key={role} className={`role-tag role-${role}`}>
-                            {getRoleDisplayName(role)}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td>{formatDate(user.createdAt)}</td>
-                    <td>{user.lastLogin ? formatDate(user.lastLogin) : 'Never'}</td>
-                    <td>
-                      <div className="user-actions">
-                        <button
-                          className="btn btn-small btn-secondary"
-                          onClick={() => startEdit(user)}
-                          disabled={showAddForm || !!editingUser}
-                        >
-                          ✏️ Edit
-                        </button>
-                        <button
-                          className="btn btn-small btn-danger"
-                          onClick={() => handleDeleteUser(user)}
-                          disabled={showAddForm || !!editingUser}
-                        >
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  <React.Fragment key={user.id}>
+                    <tr className={editingUser?.id === user.id ? 'editing' : ''}>
+                      <td>
+                        <strong>{user.username}</strong>
+                      </td>
+                      <td>{user.fullName || '-'}</td>
+                      <td>{user.email || '-'}</td>
+                      <td>
+                        <div className="user-roles">
+                          {user.roles.map(role => (
+                            <span key={role} className={`role-tag role-${role}`}>
+                              {getRoleDisplayName(role)}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td>{formatDate(user.createdAt)}</td>
+                      <td>{user.lastLogin ? formatDate(user.lastLogin) : 'Never'}</td>
+                      <td>
+                        <div className="user-actions">
+                          <button
+                            className="btn btn-small btn-secondary"
+                            onClick={() => startEdit(user)}
+                            disabled={showAddForm || (!!editingUser && editingUser.id !== user.id)}
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            className="btn btn-small btn-danger"
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={showAddForm || !!editingUser}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    
+                    {/* Inline Edit Form */}
+                    {editingUser?.id === user.id && (
+                      <tr className="edit-form-row">
+                        <td colSpan={7}>
+                          <div className="inline-edit-form">
+                            <form onSubmit={handleUpdateUser} className="user-edit-form">
+                              <h4>✏️ Edit User: {editingUser.username}</h4>
+                              
+                              <div className="form-row">
+                                <div className="form-group">
+                                  <label>Username *</label>
+                                  <input
+                                    type="text"
+                                    value={formData.username}
+                                    onChange={(e) => setFormData(prev => ({...prev, username: e.target.value}))}
+                                    placeholder="Enter username"
+                                    required
+                                  />
+                                </div>
+                                <div className="form-group">
+                                  <label>New Password (leave blank to keep current)</label>
+                                  <input
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData(prev => ({...prev, password: e.target.value}))}
+                                    placeholder="Enter new password (min 6 characters)"
+                                    minLength={6}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="form-row">
+                                <div className="form-group">
+                                  <label>Full Name</label>
+                                  <input
+                                    type="text"
+                                    value={formData.fullName}
+                                    onChange={(e) => setFormData(prev => ({...prev, fullName: e.target.value}))}
+                                    placeholder="Enter full name"
+                                  />
+                                </div>
+                                <div className="form-group">
+                                  <label>Email</label>
+                                  <input
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
+                                    placeholder="Enter email address"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="form-group">
+                                <label>Roles * (Select at least one)</label>
+                                <div className="role-checkboxes">
+                                  {(['superadmin', 'admin', 'reviewer', 'user'] as UserRole[]).map(role => (
+                                    <label key={role} className="checkbox-label">
+                                      <input
+                                        type="checkbox"
+                                        checked={formData.roles.includes(role)}
+                                        onChange={() => handleRoleToggle(role)}
+                                      />
+                                      <span>{getRoleDisplayName(role)}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="form-actions">
+                                <button type="submit" className="btn btn-primary">
+                                  💾 Update User
+                                </button>
+                                <button 
+                                  type="button" 
+                                  className="btn btn-secondary"
+                                  onClick={cancelEdit}
+                                >
+                                  ❌ Cancel
+                                </button>
+                              </div>
+                            </form>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

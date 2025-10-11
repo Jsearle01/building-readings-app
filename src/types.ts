@@ -23,7 +23,7 @@ export interface BuildingReading {
   floor: string;
   room: string;
   readingType: ReadingType;
-  value: number;
+  value: number | string; // Can be numeric value or 'SAT'/'UNSAT'
   unit: string;
   timestamp: string;
   notes?: string;
@@ -36,7 +36,7 @@ export interface ReadingFormData {
   floor: string;
   room: string;
   readingType: ReadingType;
-  value: number;
+  value: number | string; // Can be numeric value or 'SAT'/'UNSAT'
   unit: string;
   notes?: string;
   pointId?: string;
@@ -53,6 +53,9 @@ export interface ReadingPoint {
   component?: string; // Custom component/system category
   unit: string;
   description?: string;
+  validationType?: 'range' | 'sat_unsat'; // Type of validation: range (min/max) or SAT/UNSAT
+  minValue?: number; // Minimum acceptable value (only used if validationType is 'range')
+  maxValue?: number; // Maximum acceptable value (only used if validationType is 'range')
   isActive: boolean;
   createdAt: string;
 }
@@ -62,13 +65,15 @@ export interface ReadingPointList {
   name: string;
   description?: string;
   pointIds: string[];
+  expectedCompletionDate?: string; // Expected completion date in YYYY-MM-DD format
+  createdBy?: string; // User ID of who created the list
   createdAt: string;
   updatedAt: string;
 }
 
 export interface BulkReadingEntry {
   pointId: string;
-  value: number;
+  value: number | string; // Can be numeric value or 'SAT'/'UNSAT'
   notes?: string;
 }
 
@@ -77,7 +82,7 @@ export interface PointCompletion {
   pointId: string;
   completedAt: string;
   completedBy?: string;
-  value?: number;
+  value?: number | string; // Can be numeric value or 'SAT'/'UNSAT'
   notes?: string;
 }
 
@@ -129,6 +134,7 @@ export interface ReviewSubmission {
   readings: BuildingReading[];
   status: ReviewStatus;
   reviewedBy?: string; // User ID who reviewed
+  reviewerName?: string; // Name of the reviewer for display
   reviewedAt?: string;
   reviewComments?: string;
   submissionNotes?: string; // Notes from the submitter

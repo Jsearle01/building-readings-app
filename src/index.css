@@ -3,15 +3,29 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #2c3e50;
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+/* Override all light text colors with darker ones */
+* {
+  color: inherit;
+}
+
+/* Specifically target common light text classes */
+.text-muted,
+.muted,
+[style*="color: #888"],
+[style*="color: #999"],
+[style*="color: #6c757d"] {
+  color: #495057 !important;
 }
 
 a {
@@ -29,6 +43,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #ffffff;
+  color: #2c3e50;
 }
 
 #root {
@@ -37,6 +53,7 @@ body {
   padding: 2rem;
   text-align: center;
   width: 100%;
+  color: #2c3e50;
 }
 
 .card {
@@ -49,9 +66,11 @@ body {
 
 /* Custom styles for Building Readings App */
 .container {
-  max-width: 1200px;
+  width: 100% !important;
+  max-width: none !important;
   margin: 0 auto;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 .grid {
@@ -74,7 +93,7 @@ body {
   display: block;
   margin-top: 0.25rem;
   font-size: 0.85rem;
-  color: #6c757d;
+  color: #495057;
   font-style: italic;
 }
 
@@ -136,10 +155,7 @@ body {
 }
 
 .chart-container {
-  background: white;
-  border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Additional styles for Building Readings App components */
@@ -158,6 +174,45 @@ body {
   margin-bottom: 1rem;
   font-size: 0.9rem;
   color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sort-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Sortable header styles */
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.sortable-header:hover {
+  background-color: #f8f9fa !important;
+}
+
+.sort-indicator {
+  font-size: 0.8rem;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.sortable-header:active {
+  background-color: #e9ecef !important;
 }
 
 .btn-danger {
@@ -442,11 +497,21 @@ body {
 
 /* Bulk Reading Form Styles */
 .bulk-reading-form {
-  max-width: 1000px;
+  width: 100% !important;
+  max-width: none !important;
+  display: block !important;
+}
+
+.bulk-reading-form form {
+  width: 100% !important;
+  max-width: none !important;
+  display: block !important;
 }
 
 .reading-entries {
   margin-top: 2rem;
+  width: 100% !important;
+  box-sizing: border-box;
 }
 
 .reading-entries h3 {
@@ -458,6 +523,8 @@ body {
   border: 1px solid #dee2e6;
   border-radius: 8px;
   overflow: hidden;
+  width: 100% !important;
+  box-sizing: border-box;
 }
 
 .group-header {
@@ -553,6 +620,20 @@ body {
   .data-table th,
   .data-table td {
     padding: 0.5rem;
+  }
+  
+  .table-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .sort-label {
+    font-size: 0.8rem;
+  }
+  
+  .sort-indicator {
+    font-size: 0.7rem;
   }
   
   .summary-card {

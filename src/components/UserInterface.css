@@ -1,0 +1,331 @@
+/* User Interface Styles */
+
+/* List Cards */
+.list-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.list-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.list-header h4 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.completion-date {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.completion-date.available {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.list-description {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.list-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+}
+
+.point-count {
+  font-weight: 500;
+}
+
+/* Lists Grid */
+.lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .lists-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .list-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .completion-date {
+    align-self: flex-start;
+  }
+}
+
+/* Trend Analysis Styles */
+.entry-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-trend {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-trend:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.btn-trend:active {
+  transform: translateY(0);
+}
+
+/* Trend Analysis Modal */
+.trend-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.trend-modal {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.trend-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.trend-modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: #dc3545;
+}
+
+.trend-modal-content {
+  padding: 1.5rem;
+}
+
+.trend-info {
+  margin-bottom: 2rem;
+}
+
+.trend-info h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.reading-details {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #007bff;
+}
+
+.reading-details p {
+  margin: 0.5rem 0;
+  color: #495057;
+}
+
+.trend-chart-section {
+  margin-bottom: 2rem;
+}
+
+.trend-chart-section h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.simple-trend-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 200px;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.trend-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  height: 100%;
+}
+
+.trend-bar {
+  width: 20px;
+  min-height: 10px;
+  border-radius: 2px 2px 0 0;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.trend-bar:hover {
+  opacity: 0.8;
+}
+
+.trend-date {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 4px;
+}
+
+.trend-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.no-trend-data {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.trend-statistics h4 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stat-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.stat-item strong {
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive design for trend modal */
+@media (max-width: 768px) {
+  .trend-modal {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .trend-modal-header {
+    padding: 1rem;
+  }
+  
+  .trend-modal-content {
+    padding: 1rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .simple-trend-chart {
+    height: 150px;
+  }
+  
+  .entry-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .entry-actions {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .trend-bar-container {
+    min-width: 40px;
+  }
+  
+  .trend-bar {
+    width: 16px;
+  }
+}

@@ -358,6 +358,41 @@
   }
 }
 
+/* Review Information Section */
+.review-info-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.review-info-section h4 {
+  margin: 0 0 15px 0;
+  color: #495057;
+  font-size: 16px;
+}
+
+.review-comments-display {
+  margin-top: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.review-comments-display strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #495057;
+}
+
+.review-comments-display p {
+  margin: 0;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
 @media (max-width: 768px) {
   .review-interface {
     padding: 10px;

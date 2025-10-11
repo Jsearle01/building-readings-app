@@ -224,6 +224,20 @@
   font-weight: normal;
 }
 
+.validation-info {
+  color: #007bff;
+  font-weight: 600;
+  background: rgba(0, 123, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.validation-info.sat-unsat {
+  color: #6f42c1;
+  background: rgba(111, 66, 193, 0.1);
+}
+
 .reading-type {
   color: #000;
   font-weight: normal;
@@ -603,6 +617,151 @@ h4.group-header {
   color: #495057;
 }
 
+/* Required field indicators */
+.required-asterisk {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.form-group input.required {
+  border-color: #ffc107;
+  background-color: #fff9e6;
+}
+
+.form-group input.required:focus {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.form-group textarea {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-group textarea.required {
+  border-color: #ffc107;
+  background-color: #fff9e6;
+}
+
+.form-group textarea.required:focus {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.form-group textarea.disabled,
+.form-group textarea:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Date Selector Styles */
+.date-selector-container {
+  position: relative;
+}
+
+.btn-toggle-date-selector {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.btn-toggle-date-selector:hover {
+  border-color: #007bff;
+}
+
+.btn-toggle-date-selector:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.date-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.date-option {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.date-option:hover {
+  background-color: #f8f9fa;
+}
+
+.date-option.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.date-option:last-child {
+  border-bottom: none;
+}
+
+.no-dates-message {
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.no-dates-message p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+/* No Overdue Lists Message */
+.no-overdue-lists {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.no-overdue-lists h4 {
+  color: #28a745;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.no-overdue-lists p {
+  color: #6c757d;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
 .reading-types-list h4 {
   color: #333;
   margin-bottom: 1rem;
@@ -701,11 +860,11 @@ h4.group-header {
 }
 
 .view {
-  background: white;
-  border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   color: #333;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box;
 }
 
 .view h2 {
@@ -978,6 +1137,23 @@ h4.group-header {
 .entry-card {
   position: relative;
   transition: all 0.3s ease;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  width: 100% !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  display: block !important;
+  flex: none !important;
+  max-width: none !important;
+  min-width: 100% !important;
+}
+
+.entry-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .entry-card.completed {
@@ -1009,6 +1185,61 @@ h4.group-header {
   margin-bottom: 1rem;
   flex-wrap: wrap;
   gap: 1rem;
+  width: 100%;
+}
+
+.entry-title-section {
+  flex: 1;
+  min-width: 200px;
+}
+
+.entry-title-section h5 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.entry-location {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.entry-range {
+  color: #007bff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: block;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  border-left: 3px solid #2196f3;
+}
+
+.entry-inputs {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.entry-inputs .form-group {
+  margin-bottom: 1rem;
+}
+
+.entry-inputs input {
+  width: 100%;
+  max-width: 200px;
+}
+
+.entry-inputs input.out-of-range {
+  border-color: #dc3545 !important;
+  background-color: #fff5f5 !important;
+  color: #dc3545 !important;
+}
+
+.entry-inputs input.out-of-range:focus {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+  border-color: #dc3545 !important;
 }
 
 .entry-title-section {
@@ -1075,9 +1306,13 @@ h4.group-header {
 
 /* Reading entries grid improvements */
 .entries-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  display: grid !important;
+  grid-template-columns: 1fr !important;
   gap: 1rem;
+  width: 100% !important;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Group header improvements with progress */
@@ -1137,18 +1372,27 @@ h4.group-header {
 }
 
 @media (max-width: 768px) {
+  .entry-card {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
   .entry-header {
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
   }
   
-  .completion-section {
-    align-self: flex-end;
+  .entry-title-section h5 {
+    font-size: 1rem;
   }
   
-  .entries-grid {
-    grid-template-columns: 1fr;
+  .entry-inputs input {
+    max-width: 100%;
+  }
+  
+  .completion-section {
+    align-self: flex-end;
   }
   
   .group-header {
@@ -1251,4 +1495,102 @@ h4.group-header {
   padding: 0.5rem;
   border-radius: 4px;
   margin-top: 0.5rem;
+}
+
+/* SAT/UNSAT Validation Styles */
+.entry-validation {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 600;
+  display: block;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #f3e5f5;
+  border-radius: 4px;
+  border-left: 3px solid #9c27b0;
+}
+
+.sat-unsat-summary {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.validation-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.stat-item.sat {
+  background: #d4edda;
+  color: #155724;
+}
+
+.stat-item.unsat {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.recent-readings h5 {
+  margin: 0 0 0.5rem 0;
+  color: #495057;
+}
+
+.reading-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 4px;
+}
+
+.reading-item.SAT {
+  background: #d4edda;
+  color: #155724;
+}
+
+.reading-item.UNSAT {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.reading-value {
+  font-weight: 600;
+}
+
+.reading-date {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Validation info styling */
+.validation-info {
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+}
+
+.validation-info p {
+  margin: 0;
+  color: #1565c0;
+  font-size: 0.9rem;
 }

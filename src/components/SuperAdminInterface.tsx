@@ -379,27 +379,6 @@ const SuperAdminInterface: React.FC<SuperAdminInterfaceProps> = ({
             </div>
           )}
         </div>
-
-        <div className="field-summary">
-          <h3>Configuration Summary</h3>
-          <div className="summary-grid">
-            <div className="summary-item">
-              <strong>Buildings:</strong> {fieldDefinitions.buildings.length} options
-            </div>
-            <div className="summary-item">
-              <strong>Floors:</strong> {fieldDefinitions.floors.length} options
-            </div>
-            <div className="summary-item">
-              <strong>Rooms:</strong> {fieldDefinitions.rooms.length} options
-            </div>
-            <div className="summary-item">
-              <strong>Components:</strong> {fieldDefinitions.components.length} options
-            </div>
-            <div className="summary-item">
-              <strong>Reading Types:</strong> {fieldDefinitions.readingTypes.length} types
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   );
