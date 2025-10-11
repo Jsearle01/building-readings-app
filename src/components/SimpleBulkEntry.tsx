@@ -75,8 +75,14 @@ const SimpleBulkEntry: React.FC<SimpleBulkEntryProps> = ({
     });
 
     return result.sort((a, b) => {
-      // Sort by location first, then by component, then by reading type
-      if (a.location !== b.location) return a.location.localeCompare(b.location);
+      // Sort by room first, then by location, then by component, then by reading type
+      if (a.location !== b.location) {
+        // Extract room from location for sorting
+        const roomA = a.points[0]?.room || '';
+        const roomB = b.points[0]?.room || '';
+        if (roomA !== roomB) return roomA.localeCompare(roomB);
+        return a.location.localeCompare(b.location);
+      }
       const compA = a.component || 'General';
       const compB = b.component || 'General';
       if (compA !== compB) return compA.localeCompare(compB);
@@ -205,7 +211,8 @@ const SimpleBulkEntry: React.FC<SimpleBulkEntryProps> = ({
             {groupedPoints.map((group, groupIndex) => (
               <div key={groupIndex} className="reading-group">
                 <div className="location-header">
-                  <span className="location-label">📍 {group.location}</span>
+                  <span className="room-label">🏠 {group.points[0]?.room}</span>
+                  <span className="location-details">{group.points[0]?.buildingName} - {group.points[0]?.floor}</span>
                 </div>
                 {group.component && (
                   <div className="component-header">

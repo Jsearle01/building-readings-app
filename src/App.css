@@ -268,6 +268,23 @@ h4.group-header {
   padding: 0.75rem 1rem;
   border-bottom: 2px solid #4caf50;
   text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.room-label {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2e7d32;
+  display: inline-block;
+}
+
+.location-details {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4caf50;
+  opacity: 0.8;
 }
 
 .location-label {
@@ -713,4 +730,525 @@ h4.group-header {
   .view {
     padding: 1rem;
   }
+}
+
+/* Room Selector Styles */
+.room-selector {
+  margin-bottom: 2rem;
+}
+
+.room-selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.room-selector-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.room-selector-header p {
+  margin: 0.5rem 0 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.clear-selection-btn {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.clear-selection-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+  transform: translateY(-1px);
+}
+
+.clear-selection-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.room-card {
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.room-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.room-card.selected {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  transform: translateY(-3px);
+}
+
+.room-card.complete {
+  border-color: #4caf50;
+}
+
+.room-card.partial {
+  border-color: #ff9800;
+}
+
+.room-card.pending {
+  border-color: #f44336;
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.room-name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.status-badge {
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 80px;
+  text-align: center;
+}
+
+.room-details {
+  margin-bottom: 1rem;
+}
+
+.location-info {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.building {
+  font-weight: 600;
+}
+
+.floor {
+  color: #888;
+}
+
+.progress-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.points-count {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.selected-indicator {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.legend {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.legend h4 {
+  margin: 0 0 0.75rem 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.legend-color.complete {
+  background-color: #4caf50;
+}
+
+.legend-color.partial {
+  background-color: #ff9800;
+}
+
+.legend-color.pending {
+  background-color: #f44336;
+}
+
+.no-rooms {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.no-rooms h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+/* Mobile responsiveness for room selector */
+@media (max-width: 768px) {
+  .room-selector-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .rooms-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .legend-items {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Individual Point Completion Styles */
+.entry-card {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.entry-card.completed {
+  background: #f0f8f0;
+  border-left: 4px solid #4caf50;
+}
+
+.entry-card.completed::after {
+  content: '✓';
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #4caf50;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.entry-title-section {
+  flex: 1;
+}
+
+.entry-title-section h5 {
+  margin: 0 0 0.25rem 0;
+  color: #333;
+}
+
+.entry-location {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.completion-section {
+  flex-shrink: 0;
+}
+
+.completion-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+.completion-checkbox:hover {
+  background: #f5f5f5;
+}
+
+.completion-checkbox.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.completion-checkbox.disabled:hover {
+  background: transparent;
+}
+
+.completion-checkbox input[type="checkbox"] {
+  margin: 0;
+  transform: scale(1.2);
+}
+
+.completion-checkbox input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.completion-checkbox input[type="checkbox"]:checked + .checkbox-label {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.checkbox-label {
+  color: #666;
+  transition: color 0.2s;
+}
+
+/* Reading entries grid improvements */
+.entries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Group header improvements with progress */
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.group-title h4 {
+  margin: 0;
+  color: #333;
+}
+
+.group-count {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: normal;
+}
+
+.group-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.progress-bar-small {
+  width: 100px;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill-small {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .entry-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .completion-section {
+    align-self: flex-end;
+  }
+  
+  .entries-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .group-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .group-progress {
+    align-items: stretch;
+  }
+  
+  .progress-bar-small {
+    width: 100%;
+  }
+}
+
+/* Room Selection Info Styles */
+.room-selection-info {
+  margin: 1rem 0;
+}
+
+.room-selection-info .alert {
+  border-left: 4px solid #2196f3;
+}
+
+.room-selection-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+
+/* Workflow Info Styles */
+.workflow-info {
+  margin: 1rem 0;
+}
+
+.workflow-info .alert {
+  border-left: 4px solid #4caf50;
+}
+
+.workflow-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: #2e7d32;
+  font-size: 1.1rem;
+}
+
+.workflow-info p strong {
+  color: #1976d2;
+}
+
+/* Room Selector Container Styles */
+.room-selector-container {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Disabled Input and Completion Styles */
+.form-group input.disabled,
+.form-group input:disabled {
+  background: #f5f5f5;
+  color: #666;
+  border-color: #ddd;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.completion-info {
+  display: block;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.completion-timestamp {
+  margin-top: 0.5rem;
+  padding: 0.25rem 0;
+  border-top: 1px solid #eee;
+}
+
+.completion-timestamp small {
+  display: block;
+  color: #666;
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.completion-timestamp small:first-child {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+/* Enhanced completion section */
+.completion-section .completion-timestamp {
+  background: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
 }

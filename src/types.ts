@@ -72,6 +72,15 @@ export interface BulkReadingEntry {
   notes?: string;
 }
 
+// Point completion tracking with timestamps
+export interface PointCompletion {
+  pointId: string;
+  completedAt: string;
+  completedBy?: string;
+  value?: number;
+  notes?: string;
+}
+
 // Field definitions for super admin configuration
 export interface FieldDefinitions {
   buildings: string[];
@@ -107,3 +116,48 @@ export const DEFAULT_FIELD_DEFINITIONS: FieldDefinitions = {
     lighting: ['lux', 'lm', 'cd/m²']
   }
 };
+
+// Review system types
+export type ReviewStatus = 'pending' | 'approved' | 'rejected' | 'needs_revision';
+
+export interface ReviewSubmission {
+  id: string;
+  submittedBy: string; // User ID who submitted
+  submittedAt: string;
+  listId?: string; // If submitted from a reading point list
+  listName?: string; // Name of the list used
+  readings: BuildingReading[];
+  status: ReviewStatus;
+  reviewedBy?: string; // User ID who reviewed
+  reviewedAt?: string;
+  reviewComments?: string;
+  submissionNotes?: string; // Notes from the submitter
+}
+
+export interface ReviewAction {
+  action: 'approve' | 'reject' | 'request_revision';
+  comments?: string;
+  reviewedBy: string;
+}
+
+// Email notification types
+export interface EmailConfig {
+  smtpHost?: string;
+  smtpPort?: number;
+  username?: string;
+  password?: string;
+  fromEmail: string;
+  fromName?: string;
+}
+
+export interface EmailNotificationSettings {
+  enabled: boolean;
+  notifyOnSubmission: boolean;
+  notifyOnApproval: boolean;
+  notifyOnRejection: boolean;
+  notifyOnRevisionRequest: boolean;
+}
+
+export interface NotificationPreferences {
+  email: EmailNotificationSettings;
+}

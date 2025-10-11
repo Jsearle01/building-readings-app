@@ -116,6 +116,15 @@ const AdminInterface: React.FC<AdminInterfaceProps> = ({
               onSubmit={onAddBulkReadings}
               readingPoints={readingPoints}
               readingPointLists={readingPointLists}
+              allowIndividualSelection={true}
+              completedPoints={new Set()}
+              onPointComplete={() => {}}
+              onListSelection={() => {}}
+              selectedRoom={null}
+              onRoomSelect={() => {}}
+              allReadingPoints={readingPoints}
+              allReadingPointLists={readingPointLists}
+              allCompletedReadings={new Set()}
             />
           </div>
         )}

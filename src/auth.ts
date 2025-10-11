@@ -1,5 +1,7 @@
 // Authentication types and database
-export type UserRole = 'user' | 'admin' | 'superadmin';
+import { NotificationPreferences } from './types';
+
+export type UserRole = 'user' | 'admin' | 'reviewer' | 'superadmin';
 
 export interface User {
   id: string;
@@ -10,6 +12,7 @@ export interface User {
   fullName?: string;
   createdAt: string;
   lastLogin?: string;
+  notificationPreferences?: NotificationPreferences;
 }
 
 export interface AuthState {
@@ -49,6 +52,42 @@ export const USER_DATABASE: User[] = [
   },
   {
     id: '4',
+    username: 'reviewer',
+    password: 'reviewer123', // In production: hash this password
+    roles: ['reviewer'],
+    email: 'reviewer@company.com',
+    fullName: 'Data Quality Reviewer',
+    createdAt: new Date().toISOString(),
+    notificationPreferences: {
+      email: {
+        enabled: true,
+        notifyOnSubmission: true,
+        notifyOnApproval: false,
+        notifyOnRejection: false,
+        notifyOnRevisionRequest: false
+      }
+    }
+  },
+  {
+    id: '5',
+    username: 'supervisor',
+    password: 'supervisor123', // In production: hash this password
+    roles: ['reviewer', 'admin'],
+    email: 'supervisor@company.com',
+    fullName: 'Department Supervisor',
+    createdAt: new Date().toISOString(),
+    notificationPreferences: {
+      email: {
+        enabled: true,
+        notifyOnSubmission: true,
+        notifyOnApproval: false,
+        notifyOnRejection: false,
+        notifyOnRevisionRequest: false
+      }
+    }
+  },
+  {
+    id: '6',
     username: 'manager',
     password: 'manager123', // In production: hash this password
     roles: ['admin', 'user'],
@@ -57,7 +96,7 @@ export const USER_DATABASE: User[] = [
     createdAt: new Date().toISOString()
   },
   {
-    id: '5',
+    id: '7',
     username: 'technician',
     password: 'tech123', // In production: hash this password
     roles: ['user'],
@@ -78,8 +117,21 @@ export const initializeUserDatabase = (): void => {
       const users = JSON.parse(saved);
       if (Array.isArray(users) && users.length > 0) {
         console.log('Loading users from localStorage:', users);
-        USER_DATABASE.length = 0;
-        USER_DATABASE.push(...users);
+        // Check if we have all required users (especially reviewer and supervisor)
+        const requiredUsernames = ['superadmin', 'admin', 'user', 'reviewer', 'supervisor', 'manager', 'technician'];
+        const existingUsernames = users.map(u => u.username);
+        const missingUsers = requiredUsernames.filter(username => !existingUsernames.includes(username));
+        
+        if (missingUsers.length > 0) {
+          console.log('Missing users detected:', missingUsers, '- reinitializing with defaults');
+          // If users are missing, reset to defaults
+          USER_DATABASE.length = 0;
+          USER_DATABASE.push(...DEFAULT_USERS.map(user => ({...user})));
+          saveUsersToLocalStorage();
+        } else {
+          USER_DATABASE.length = 0;
+          USER_DATABASE.push(...users);
+        }
         return;
       }
     }
@@ -97,12 +149,36 @@ export const initializeUserDatabase = (): void => {
   }
 };
 
+// Reset user database to defaults (useful for fixing missing users)
+export const resetUserDatabase = (): void => {
+  console.log('Resetting user database to defaults...');
+  USER_DATABASE.length = 0;
+  USER_DATABASE.push(...DEFAULT_USERS.map(user => ({...user})));
+  saveUsersToLocalStorage();
+  console.log('User database reset complete. Users:', USER_DATABASE.map(u => u.username));
+};
+
 // Authentication functions
 export const authenticateUser = (username: string, password: string): User | null => {
-  const user = USER_DATABASE.find(u => u.username === username && u.password === password);
+  // Trim whitespace and normalize case
+  const normalizedUsername = username.trim().toLowerCase();
+  const normalizedPassword = password.trim();
+  
+  console.log('Attempting authentication for user:', normalizedUsername);
+  console.log('Current USER_DATABASE:', USER_DATABASE);
+  
+  const user = USER_DATABASE.find(u => 
+    u.username.toLowerCase() === normalizedUsername && 
+    u.password === normalizedPassword
+  );
+  
   if (user) {
+    console.log('Authentication successful for:', normalizedUsername);
     // Update last login
     user.lastLogin = new Date().toISOString();
+  } else {
+    console.log('Authentication failed for:', normalizedUsername);
+    console.log('Available users:', USER_DATABASE.map(u => u.username.toLowerCase()));
   }
   return user || null;
 };
@@ -142,6 +218,30 @@ export const clearAuthState = (): void => {
   }
 };
 
+// Debug function for users - accessible from browser console
+(window as any).debugUsers = () => {
+  console.log('=== USER DATABASE DEBUG ===');
+  console.log('Current USER_DATABASE:', USER_DATABASE);
+  console.log('LocalStorage userDatabase:', localStorage.getItem('userDatabase'));
+  console.log('Available usernames:', USER_DATABASE.map(u => u.username));
+  console.log('Available roles:', USER_DATABASE.map(u => ({ username: u.username, roles: u.roles })));
+  console.log('===========================');
+};
+
+// Test specific user function
+(window as any).testUser = (username: string, password: string) => {
+  console.log(`Testing user: ${username} with password: ${password}`);
+  const result = authenticateUser(username, password);
+  console.log('Authentication result:', result);
+  return result;
+};
+
+// Reset user database function - accessible from browser console
+(window as any).resetUsers = () => {
+  resetUserDatabase();
+  console.log('User database has been reset. Please refresh the page.');
+};
+
 // Password validation (basic example)
 export const validatePassword = (password: string): { isValid: boolean; message: string } => {
   if (password.length < 6) {
@@ -157,6 +257,8 @@ export const getRoleDisplayName = (role: UserRole): string => {
       return '🔧 Super Admin';
     case 'admin':
       return '⚙️ Administrator';
+    case 'reviewer':
+      return '🔍 Reviewer';
     case 'user':
       return '👤 User';
     default:

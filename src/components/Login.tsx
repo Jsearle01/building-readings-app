@@ -57,8 +57,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const getAvailableRoles = (user: User): UserRole[] => {
     return user.roles.sort((a, b) => {
-      const order = { 'superadmin': 0, 'admin': 1, 'user': 2 };
-      return order[a] - order[b];
+      const order = { 'superadmin': 0, 'admin': 1, 'reviewer': 2, 'user': 3 };
+      return (order[a] || 999) - (order[b] || 999);
     });
   };
 
@@ -113,22 +113,64 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             {/* Demo credentials helper */}
             <div className="demo-credentials">
-              <h4>Demo Credentials:</h4>
+              <h4>🔑 Available Test Credentials</h4>
+              <p className="demo-note">Click any credential to auto-fill the form</p>
               <div className="credentials-grid">
-                <div className="credential-item">
-                  <strong>Super Admin:</strong> superadmin / super123
+                <div 
+                  className="credential-item superadmin"
+                  onClick={() => {setUsername('superadmin'); setPassword('super123');}}
+                >
+                  <div className="role-badge">🔧 Super Admin</div>
+                  <div className="credential-text">superadmin / super123</div>
+                  <div className="role-desc">System configuration & management</div>
                 </div>
-                <div className="credential-item">
-                  <strong>Admin:</strong> admin / admin123
+                <div 
+                  className="credential-item admin"
+                  onClick={() => {setUsername('admin'); setPassword('admin123');}}
+                >
+                  <div className="role-badge">⚙️ Administrator</div>
+                  <div className="credential-text">admin / admin123</div>
+                  <div className="role-desc">Data management & direct entry</div>
                 </div>
-                <div className="credential-item">
-                  <strong>Manager:</strong> manager / manager123
+                <div 
+                  className="credential-item reviewer"
+                  onClick={() => {setUsername('reviewer'); setPassword('reviewer123');}}
+                >
+                  <div className="role-badge">🔍 Reviewer</div>
+                  <div className="credential-text">reviewer / reviewer123</div>
+                  <div className="role-desc">Quality control & data approval</div>
                 </div>
-                <div className="credential-item">
-                  <strong>User:</strong> user / user123
+                <div 
+                  className="credential-item supervisor"
+                  onClick={() => {setUsername('supervisor'); setPassword('supervisor123');}}
+                >
+                  <div className="role-badge">👨‍💼 Supervisor</div>
+                  <div className="credential-text">supervisor / supervisor123</div>
+                  <div className="role-desc">Admin + Reviewer capabilities</div>
                 </div>
-                <div className="credential-item">
-                  <strong>Technician:</strong> technician / tech123
+                <div 
+                  className="credential-item manager"
+                  onClick={() => {setUsername('manager'); setPassword('manager123');}}
+                >
+                  <div className="role-badge">🏢 Manager</div>
+                  <div className="credential-text">manager / manager123</div>
+                  <div className="role-desc">Building management & admin</div>
+                </div>
+                <div 
+                  className="credential-item user"
+                  onClick={() => {setUsername('user'); setPassword('user123');}}
+                >
+                  <div className="role-badge">👤 User</div>
+                  <div className="credential-text">user / user123</div>
+                  <div className="role-desc">Data entry & submissions</div>
+                </div>
+                <div 
+                  className="credential-item technician"
+                  onClick={() => {setUsername('technician'); setPassword('tech123');}}
+                >
+                  <div className="role-badge">🔧 Technician</div>
+                  <div className="credential-text">technician / tech123</div>
+                  <div className="role-desc">Field data collection</div>
                 </div>
               </div>
             </div>
