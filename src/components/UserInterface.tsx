@@ -33,8 +33,10 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
 
   // Filter reading points and lists based on selected room
   const getFilteredData = () => {
-    // First filter lists by availability date
-    const availableLists = readingPointLists.filter(list => isCompletionDateValid(list).isValid);
+    // First filter lists by availability date and exclude model templates
+    const availableLists = readingPointLists.filter(list => 
+      isCompletionDateValid(list).isValid && !list.isModel
+    );
     
     if (!selectedRoom) {
       return { filteredPoints: readingPoints, filteredLists: availableLists };

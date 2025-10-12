@@ -194,7 +194,7 @@ export const canUserAccessRole = (user: User, role: UserRole): boolean => {
 // LocalStorage helpers for auth state
 export const saveAuthState = (authState: AuthState): void => {
   try {
-    localStorage.setItem('authState', JSON.stringify(authState));
+    sessionStorage.setItem('authState', JSON.stringify(authState));
   } catch (error) {
     console.error('Failed to save auth state:', error);
   }
@@ -202,7 +202,7 @@ export const saveAuthState = (authState: AuthState): void => {
 
 export const loadAuthState = (): AuthState | null => {
   try {
-    const saved = localStorage.getItem('authState');
+    const saved = sessionStorage.getItem('authState');
     return saved ? JSON.parse(saved) : null;
   } catch (error) {
     console.error('Failed to load auth state:', error);
@@ -212,7 +212,7 @@ export const loadAuthState = (): AuthState | null => {
 
 export const clearAuthState = (): void => {
   try {
-    localStorage.removeItem('authState');
+    sessionStorage.removeItem('authState');
   } catch (error) {
     console.error('Failed to clear auth state:', error);
   }

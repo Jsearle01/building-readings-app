@@ -92,6 +92,11 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     const today = format(new Date(), 'yyyy-MM-dd');
     
     return readingPointLists.filter(list => {
+      // Skip model templates - they are never meant to be worked
+      if (list.isModel) {
+        return false;
+      }
+      
       // Check if list has an expected completion date
       if (!list.expectedCompletionDate) {
         return false; // Skip lists without due dates

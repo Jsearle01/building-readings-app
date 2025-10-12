@@ -472,6 +472,79 @@
   color: #2c3e50;
 }
 
+.template-preview {
+  background-color: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.template-preview h5 {
+  margin: 0 0 0.5rem 0;
+  color: #1976d2;
+  font-size: 0.95rem;
+}
+
+.template-preview p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #424242;
+}
+
+/* Model Template Styling */
+.model-template {
+  border: 2px solid #4CAF50;
+  background: linear-gradient(145deg, #f8fff8, #ffffff);
+}
+
+.model-template .list-card-header h4 {
+  color: #2E7D32;
+}
+
+.template-badge {
+  margin: 0.5rem 0;
+}
+
+.model-badge {
+  background: #4CAF50;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Convert Button Styling */
+.btn-icon.model-convert {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-icon.model-convert:hover {
+  background: #45a049;
+}
+
+.btn-warning {
+  background: #ff9800;
+  color: white;
+  border: 1px solid #ff9800;
+}
+
+.btn-warning:hover {
+  background: #e68900;
+  border-color: #e68900;
+}
+
 @media (max-width: 768px) {
   .header-buttons {
     flex-direction: column;

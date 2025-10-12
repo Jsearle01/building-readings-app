@@ -69,6 +69,7 @@ export interface ReadingPointList {
   createdBy?: string; // User ID of who created the list
   createdAt: string;
   updatedAt: string;
+  isModel?: boolean; // True if this list is a template/model that should not be worked
 }
 
 export interface BulkReadingEntry {
