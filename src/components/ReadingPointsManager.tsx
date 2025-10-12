@@ -59,6 +59,7 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
   const [showEditListForm, setShowEditListForm] = useState(false);
   const [showCopyListForm, setShowCopyListForm] = useState(false);
   const [copyingList, setCopyingList] = useState<string | null>(null);
+  const [showBulkCreateForm, setShowBulkCreateForm] = useState(false);
 
   // Filter states
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
@@ -149,6 +150,17 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
     description: '',
     expectedCompletionDate: '',
     originalName: ''
+  });
+
+  // Bulk Create Lists Form
+  const [bulkCreateForm, setBulkCreateForm] = useState({
+    baseName: '',
+    description: '',
+    selectedPoints: [] as string[],
+    startDate: '',
+    endDate: '',
+    frequency: 'daily' as 'daily' | 'weekly' | 'monthly',
+    namePattern: 'sequential' as 'sequential' | 'date'
   });
 
   // Edit Reading Point Form
@@ -380,6 +392,81 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
     setCopyingList(null);
     setShowCopyListForm(false);
     alert(`Successfully created "${copyList.name}" with ${originalList.pointIds.length} points from "${originalList.name}"`);
+  };
+
+  // Bulk Create Lists Handler
+  const handleBulkCreateLists = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!bulkCreateForm.baseName.trim() || !bulkCreateForm.startDate || !bulkCreateForm.endDate || bulkCreateForm.selectedPoints.length === 0) {
+      alert('Please fill in all required fields and select at least one reading point.');
+      return;
+    }
+
+    const startDate = new Date(bulkCreateForm.startDate);
+    const endDate = new Date(bulkCreateForm.endDate);
+    
+    if (startDate > endDate) {
+      alert('Start date must be before or equal to end date.');
+      return;
+    }
+
+    const createdLists: ReadingPointList[] = [];
+    const currentDate = new Date(startDate);
+    let listIndex = 1;
+
+    while (currentDate <= endDate) {
+      let listName = '';
+      const dateString = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      
+      // Generate list name based on pattern
+      if (bulkCreateForm.namePattern === 'date') {
+        const dateFormatted = currentDate.toLocaleDateString();
+        listName = `${bulkCreateForm.baseName} - ${dateFormatted}`;
+      } else {
+        listName = `${bulkCreateForm.baseName} ${listIndex}`;
+      }
+
+      // Create the list
+      const newList: ReadingPointList = {
+        id: `bulk-${Date.now()}-${listIndex}`,
+        name: listName,
+        description: bulkCreateForm.description || `Auto-generated list for ${dateString}`,
+        pointIds: [...bulkCreateForm.selectedPoints],
+        expectedCompletionDate: dateString,
+        createdBy: currentUserId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      createdLists.push(newList);
+      onAddList(newList);
+
+      // Move to next date based on frequency
+      if (bulkCreateForm.frequency === 'daily') {
+        currentDate.setDate(currentDate.getDate() + 1);
+      } else if (bulkCreateForm.frequency === 'weekly') {
+        currentDate.setDate(currentDate.getDate() + 7);
+      } else if (bulkCreateForm.frequency === 'monthly') {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+
+      listIndex++;
+    }
+
+    // Reset form and close
+    setBulkCreateForm({
+      baseName: '',
+      description: '',
+      selectedPoints: [],
+      startDate: '',
+      endDate: '',
+      frequency: 'daily',
+      namePattern: 'sequential'
+    });
+    setShowBulkCreateForm(false);
+    
+    alert(`Successfully created ${createdLists.length} reading lists from ${bulkCreateForm.startDate} to ${bulkCreateForm.endDate}`);
   };
 
   const startCopyList = (listId: string) => {
@@ -950,13 +1037,23 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
         <div className="lists-section">
           <div className="section-header">
             <h3>Reading Point Lists</h3>
-            <button 
-              className="btn"
-              onClick={() => setShowAddListForm(true)}
-              disabled={readingPoints.length === 0}
-            >
-              Create New List
-            </button>
+            <div className="header-buttons">
+              <button 
+                className="btn"
+                onClick={() => setShowAddListForm(true)}
+                disabled={readingPoints.length === 0}
+              >
+                Create New List
+              </button>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setShowBulkCreateForm(true)}
+                disabled={readingPoints.length === 0}
+                title="Create multiple lists across a date range"
+              >
+                📅 Bulk Create Lists
+              </button>
+            </div>
           </div>
 
           {readingPoints.length === 0 && (
@@ -1095,6 +1192,171 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
                         description: '',
                         expectedCompletionDate: '',
                         originalName: ''
+                      });
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Bulk Create Lists Form */}
+          {showBulkCreateForm && (
+            <div className="form-overlay">
+              <form className="add-list-form" onSubmit={handleBulkCreateLists}>
+                <h4>📅 Bulk Create Reading Lists</h4>
+                <p className="form-description">
+                  Create multiple reading lists across a date range with specified frequency.
+                </p>
+                
+                <div className="form-group">
+                  <label htmlFor="bulkBaseName">Base List Name *</label>
+                  <input
+                    type="text"
+                    id="bulkBaseName"
+                    value={bulkCreateForm.baseName}
+                    onChange={(e) => setBulkCreateForm(prev => ({...prev, baseName: e.target.value}))}
+                    placeholder="e.g., Daily Temperature Rounds"
+                    required
+                  />
+                  <small className="field-help">
+                    Base name for all created lists (will be numbered or dated)
+                  </small>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="bulkDescription">Description</label>
+                  <textarea
+                    id="bulkDescription"
+                    value={bulkCreateForm.description}
+                    onChange={(e) => setBulkCreateForm(prev => ({...prev, description: e.target.value}))}
+                    placeholder="Optional description for all lists"
+                    rows={2}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Select Reading Points *</label>
+                  <div className="checkbox-grid">
+                    {readingPoints.filter(point => point.isActive).map(point => (
+                      <label key={point.id} className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={bulkCreateForm.selectedPoints.includes(point.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setBulkCreateForm(prev => ({
+                                ...prev,
+                                selectedPoints: [...prev.selectedPoints, point.id]
+                              }));
+                            } else {
+                              setBulkCreateForm(prev => ({
+                                ...prev,
+                                selectedPoints: prev.selectedPoints.filter(id => id !== point.id)
+                              }));
+                            }
+                          }}
+                        />
+                        <span className="checkbox-label">
+                          {point.name}
+                          <small>({point.buildingName} - {point.floor} - {point.room})</small>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  <small className="field-help">
+                    Selected: {bulkCreateForm.selectedPoints.length} point(s)
+                  </small>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="bulkStartDate">Start Date *</label>
+                    <input
+                      type="date"
+                      id="bulkStartDate"
+                      value={bulkCreateForm.startDate}
+                      onChange={(e) => setBulkCreateForm(prev => ({...prev, startDate: e.target.value}))}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="bulkEndDate">End Date *</label>
+                    <input
+                      type="date"
+                      id="bulkEndDate"
+                      value={bulkCreateForm.endDate}
+                      onChange={(e) => setBulkCreateForm(prev => ({...prev, endDate: e.target.value}))}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="bulkFrequency">Frequency</label>
+                    <select
+                      id="bulkFrequency"
+                      value={bulkCreateForm.frequency}
+                      onChange={(e) => setBulkCreateForm(prev => ({...prev, frequency: e.target.value as 'daily' | 'weekly' | 'monthly'}))}
+                    >
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="bulkNamePattern">Naming Pattern</label>
+                    <select
+                      id="bulkNamePattern"
+                      value={bulkCreateForm.namePattern}
+                      onChange={(e) => setBulkCreateForm(prev => ({...prev, namePattern: e.target.value as 'sequential' | 'date'}))}
+                    >
+                      <option value="sequential">Sequential (Base Name 1, 2, 3...)</option>
+                      <option value="date">Date-based (Base Name - MM/DD/YYYY)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="bulk-preview">
+                  <h5>Preview</h5>
+                  <p>
+                    <strong>Creating:</strong> Lists from {bulkCreateForm.startDate || 'start date'} to {bulkCreateForm.endDate || 'end date'} 
+                    ({bulkCreateForm.frequency})
+                  </p>
+                  <p>
+                    <strong>Points per list:</strong> {bulkCreateForm.selectedPoints.length}
+                  </p>
+                  {bulkCreateForm.baseName && bulkCreateForm.startDate && (
+                    <p>
+                      <strong>Example names:</strong> 
+                      {bulkCreateForm.namePattern === 'date' ? 
+                        ` "${bulkCreateForm.baseName} - ${new Date(bulkCreateForm.startDate).toLocaleDateString()}"` :
+                        ` "${bulkCreateForm.baseName} 1", "${bulkCreateForm.baseName} 2"...`
+                      }
+                    </p>
+                  )}
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" className="btn btn-primary">
+                    Create Lists
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setShowBulkCreateForm(false);
+                      setBulkCreateForm({
+                        baseName: '',
+                        description: '',
+                        selectedPoints: [],
+                        startDate: '',
+                        endDate: '',
+                        frequency: 'daily',
+                        namePattern: 'sequential'
                       });
                     }}
                   >

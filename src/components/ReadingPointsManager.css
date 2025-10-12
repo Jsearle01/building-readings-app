@@ -370,3 +370,123 @@
 .form-help strong {
   font-weight: 600;
 }
+
+/* Bulk Create Lists Form Styling */
+.header-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: 1px solid #6c757d;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+  border-color: #5a6268;
+}
+
+.btn-secondary:disabled {
+  background: #e9ecef;
+  border-color: #e9ecef;
+  color: #6c757d;
+}
+
+.form-description {
+  background: #e8f4f8;
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #0c5460;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 0.75rem;
+  background: #f8f9fa;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.checkbox-item:hover {
+  background: #e9ecef;
+}
+
+.checkbox-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+.checkbox-label small {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.bulk-preview {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.bulk-preview h5 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.bulk-preview p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.bulk-preview strong {
+  color: #2c3e50;
+}
+
+@media (max-width: 768px) {
+  .header-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .header-buttons .btn {
+    width: 100%;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}
