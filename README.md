@@ -75,13 +75,6 @@ src/
 **Reviewers:**
 - Review/approve/reject submissions, provide feedback
 
-## 📈 Future Enhancements
-
-- Backend integration, real-time sync, advanced analytics, mobile apps, notifications, audit trails
-
-## 📄 License
-
-MIT License
 
 ## 🛠️ **Technical Architecture**
 
