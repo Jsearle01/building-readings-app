@@ -354,17 +354,3 @@ src/
 └── main.tsx            # Application entry point
 ```
 
-## Future Enhancements
-
-- **Backend Integration**: Add server-side database support
-- **Real-time Data**: WebSocket integration for live readings
-- **Export Features**: CSV/Excel export capabilities
-- **Advanced Analytics**: Predictive analytics and anomaly detection
-- **User Management**: Multi-user support with authentication
-- **Notifications**: Alerts for readings outside normal ranges
-- **Mobile App**: Native mobile application
-- **API Integration**: Connect with building management systems
-
-## License
-
-This project is open source and available under the MIT License.
