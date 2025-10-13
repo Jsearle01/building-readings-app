@@ -1,163 +1,87 @@
+
 # Building Readings Management System
 
-A comprehensive enterprise-grade web application for collecting, managing, and analyzing building readings data with advanced validation, role-based access control, and sophisticated data management capabilities.
+Enterprise-grade web app for collecting, managing, and analyzing building readings with advanced validation, role-based access, and smart list management.
 
-## ✨ Key Features Overview
+## 🚀 Getting Started
 
-### 🏢 **Multi-Role System**
-- **User Interface**: Data collection and reading entry
-- **Administrator Interface**: Full system management and configuration
-- **Reviewer Interface**: Quality control and approval workflows
-- **Super Admin**: User management and system oversight
+**Prerequisites:**
+- Node.js (v16+)
+- npm or yarn
 
-### 📊 **Advanced Data Collection**
-- **Dual Validation System**: Numeric range validation AND categorical SAT/UNSAT validation
-- **Overdue Reading Lists**: Automatic detection and display of past-due readings
-- **Smart List Management**: Date-based filtering with proper timezone handling
-- **Bulk Entry System**: Efficient multi-point data collection
-- **Progress Tracking**: Real-time completion status for all reading lists
+**Setup:**
+```bash
+git clone https://github.com/Jsearle01/building-readings-app.git
+cd building-readings-app
+npm install
+npm run dev
+```
+Open your browser at `http://localhost:5173`.
 
-### 🛡️ **Validation & Quality Control**
-- **Comment Requirements**: Mandatory comments for UNSAT selections and out-of-range values
-- **Visual Feedback**: Color-coded validation indicators
-- **Trend Analysis**: Historical data comparison for context
-- **Review Workflows**: Submit readings for approval when required
+## 🔑 Default Logins
 
-### 🗓️ **Advanced Scheduling**
-- **Due Date Management**: Lists with expected completion dates
-- **Overdue Detection**: Automatic identification of past-due readings
-- **Date Display**: Clear due date indicators with status (TODAY, OVERDUE)
-- **Timezone-Safe**: Proper date handling across different timezones
+| Role         | Username     | Password      |
+|--------------|-------------|---------------|
+| User         | user         | user123       |
+| Admin        | admin        | admin123      |
+| Reviewer     | reviewer     | reviewer123   |
+| Super Admin  | superadmin   | super123      |
 
-## 📋 **Detailed Feature Breakdown**
+## ✨ Features
 
-### **Reading Point Management**
-- ✅ **Dual Validation Types**: 
-  - Numeric ranges with min/max values
-  - Categorical SAT (Satisfactory) / UNSAT (Unsatisfactory) selection
-- ✅ **Inline Editing**: Edit point details directly in the interface
-- ✅ **Smart Organization**: Group by building component or reading type
-- ✅ **Active/Inactive Status**: Enable/disable points as needed
-- ✅ **Comprehensive Point Details**: Location, type, validation settings, descriptions
+- Multi-role: User, Admin, Reviewer, Super Admin
+- Dual validation: Numeric range & SAT/UNSAT
+- Overdue list detection & date management
+- Bulk entry, progress tracking, and comment requirements
+- Responsive UI, role-based navigation
+- LocalStorage persistence
+- Forced re-authentication on browser refresh, close, or new tab
 
-### **Reading List Management**
-- ✅ **List Creation**: Organize points into logical groupings
-- ✅ **Copy Functionality**: Duplicate existing lists with new due dates
-- ✅ **Due Date Assignment**: Set expected completion dates for all lists
-- ✅ **Overdue Tracking**: Automatic detection of lists past their due date
-- ✅ **Progress Monitoring**: Real-time completion percentage display
-- ✅ **Confirmation Dialogs**: Safe deletion with user confirmation
+## 📁 Project Structure
 
-### **Data Collection Interface**
-- ✅ **Smart Dropdown**: Shows lists with due dates and status indicators
-- ✅ **Dual Input Types**: 
-  - Numeric input for range validation
-  - Dropdown selection for SAT/UNSAT validation
-- ✅ **Comment Requirements**: Enforced comments for:
-  - UNSAT selections
-  - Out-of-range numeric values
-- ✅ **Visual Validation**: Color-coded indicators (green/red/yellow)
-- ✅ **Completion Tracking**: Track which points are complete per session
+```
+src/
+├── components/          # React components
+│   ├── AdminInterface.tsx
+│   ├── UserInterface.tsx
+│   ├── ReviewerInterface.tsx
+│   ├── BulkReadingForm.tsx
+│   ├── ReadingPointsManager.tsx
+│   ├── DataTable.tsx
+│   ├── Login.tsx
+│   └── *.css
+├── types.ts
+├── auth.ts
+├── App.tsx
+├── App.css
+└── main.tsx
+```
 
-### **Administrator Features**
-- ✅ **Full CRUD Operations**: Create, read, update, delete for all entities
-- ✅ **List Copying**: Duplicate lists with customizable due dates
-- ✅ **Inline Editing**: Direct editing of point properties
-- ✅ **Validation Configuration**: Set min/max values or SAT/UNSAT per point
-- ✅ **Date Management**: Proper timezone handling for due dates
-- ✅ **Bulk Operations**: Efficient management of multiple items
+## 🛠️ Scripts
 
-### **User Experience Enhancements**
-- ✅ **Role-Based Navigation**: Different interfaces per user type
-- ✅ **Responsive Design**: Works on desktop, tablet, and mobile
-- ✅ **Visual Feedback**: Clear status indicators and progress displays
-- ✅ **Intuitive Workflows**: Streamlined processes for common tasks
-- ✅ **Data Persistence**: Local storage with proper state management
+- `npm run dev` — Start dev server
+- `npm run build` — Build for production
+- `npm run preview` — Preview production build
+- `npm run lint` — Run ESLint
 
-## 🚀 **Getting Started**
+## 📖 Usage
 
-### **Prerequisites**
-- Node.js (version 16 or higher)
-- npm or yarn package manager
-- Modern web browser
+**Users:**
+- Login, select lists, enter readings, add comments for UNSAT/out-of-range, submit
 
-### **Installation**
+**Admins:**
+- Manage points/lists, set validation, monitor overdue, copy lists, edit inline
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/Jsearle01/building-readings-app.git
-   cd building-readings-app
-   ```
+**Reviewers:**
+- Review/approve/reject submissions, provide feedback
 
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+## 📈 Future Enhancements
 
-3. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
+- Backend integration, real-time sync, advanced analytics, mobile apps, notifications, audit trails
 
-4. **Open in Browser**
-   Navigate to `http://localhost:5173`
+## 📄 License
 
-### **Available Scripts**
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build production-ready application
-- `npm run preview` - Preview production build locally
-
-## 🔐 **User Roles & Access**
-
-### **Default Login Credentials**
-- **User**: `user123` / `password123`
-- **Admin**: `admin123` / `admin123`
-- **Reviewer**: `reviewer123` / `reviewer123`
-- **Super Admin**: `superadmin` / `superadmin123`
-
-### **Role Capabilities**
-
-| Feature | User | Admin | Reviewer | Super Admin |
-|---------|------|-------|----------|-------------|
-| Data Collection | ✅ | ✅ | ✅ | ✅ |
-| View Readings | ✅ | ✅ | ✅ | ✅ |
-| Manage Reading Points | ❌ | ✅ | ❌ | ✅ |
-| Manage Reading Lists | ❌ | ✅ | ❌ | ✅ |
-| Review Submissions | ❌ | ❌ | ✅ | ✅ |
-| User Management | ❌ | ❌ | ❌ | ✅ |
-| System Configuration | ❌ | ✅ | ❌ | ✅ |
-
-## 📖 **Usage Guide**
-
-### **For Users: Daily Reading Collection**
-
-1. **Login** with user credentials
-2. **Select Reading Lists**: Choose from available due or overdue lists
-3. **Complete Readings**: 
-   - Enter numeric values for range-validated points
-   - Select SAT/UNSAT for categorical points
-   - Add required comments for UNSAT or out-of-range values
-4. **Submit Data**: Submit completed readings for review or direct entry
-
-### **For Administrators: System Management**
-
-1. **Login** with admin credentials
-2. **Manage Reading Points**:
-   - Create new points with validation settings
-   - Edit existing points with inline editing
-   - Set numeric ranges OR SAT/UNSAT validation per point
-3. **Manage Reading Lists**:
-   - Create lists with due dates
-   - Copy existing lists for new schedules
-   - Monitor completion progress
-4. **Monitor System**: Track overdue lists and completion rates
-
-### **For Reviewers: Quality Control**
-
-1. **Login** with reviewer credentials
-2. **Review Submissions**: Approve or reject submitted readings
-3. **Quality Control**: Ensure data meets standards before final entry
-4. **Provide Feedback**: Comment on submissions requiring clarification
+MIT License
 
 ## 🛠️ **Technical Architecture**
 
