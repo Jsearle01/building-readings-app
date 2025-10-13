@@ -5,7 +5,8 @@ import './UserInterface.css';
 
 interface UserInterfaceProps {
   readingPoints: ReadingPoint[];
-  readingPointLists: ReadingPointList[];
+  initialReadingPointLists: ReadingPointList[];
+  onCreateUserList?: (list: ReadingPointList) => void;
   readings: BuildingReading[]; // Add readings for trend analysis
   currentUserId: string;
   currentUserName?: string;
@@ -15,13 +16,56 @@ interface UserInterfaceProps {
 
 const UserInterface: React.FC<UserInterfaceProps> = ({
   readingPoints,
-  readingPointLists,
-  readings, // Add readings parameter
+  initialReadingPointLists,
+  onCreateUserList,
+  readings,
   currentUserId,
   currentUserName,
   onAddBulkReadings,
   onSubmitForReview
 }) => {
+  // Local state for readingPointLists to allow updates
+  const [localReadingPointLists, setLocalReadingPointLists] = useState<ReadingPointList[]>(initialReadingPointLists);
+  // State for template list creation
+  const [showTemplateCreate, setShowTemplateCreate] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  const [newListName, setNewListName] = useState<string>('');
+  const [newListDescription, setNewListDescription] = useState<string>('');
+
+  // Handler to create new list from template
+  const handleCreateListFromTemplate = () => {
+    if (!selectedTemplateId || !newListName) {
+      alert('Please select a template and enter a name for the new list.');
+      return;
+    }
+    const template = localReadingPointLists.find((l: ReadingPointList) => l.id === selectedTemplateId && l.isModel);
+    if (!template) {
+      alert('Template not found.');
+      return;
+    }
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const newList: ReadingPointList = {
+      id: Date.now().toString(),
+      name: newListName,
+      description: newListDescription || `Copy of ${template.name}`,
+      pointIds: [...template.pointIds],
+      expectedCompletionDate: today,
+      createdBy: currentUserId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isModel: false
+    };
+    setLocalReadingPointLists(prev => [...prev, newList]);
+    if (onCreateUserList) {
+      onCreateUserList(newList);
+    }
+    alert(`New list "${newList.name}" created from template "${template.name}".`);
+    setShowTemplateCreate(false);
+    setSelectedTemplateId('');
+    setNewListName('');
+    setNewListDescription('');
+  };
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [completedReadings, setCompletedReadings] = useState<Set<string>>(new Set());
   const [individualCompletions, setIndividualCompletions] = useState<Set<string>>(new Set());
@@ -34,7 +78,7 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
   // Filter reading points and lists based on selected room
   const getFilteredData = () => {
     // First filter lists by availability date and exclude model templates
-    const availableLists = readingPointLists.filter(list => 
+    const availableLists = localReadingPointLists.filter(list => 
       isCompletionDateValid(list).isValid && !list.isModel
     );
     
@@ -149,6 +193,50 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
   };
   return (
     <div className="user-interface">
+      {/* Create New List from Template UI */}
+      <div className="template-create-section" style={{ margin: '1rem 0' }}>
+        <button className="btn btn-secondary" onClick={() => setShowTemplateCreate(v => !v)}>
+          {showTemplateCreate ? 'Cancel' : 'Create New List from Template'}
+        </button>
+        {showTemplateCreate && (
+          <div className="template-create-form" style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
+            <h4>Create New List from Template</h4>
+            <div style={{ marginBottom: '0.5rem' }}>
+              <label>Template List:</label>
+              <select
+                value={selectedTemplateId}
+                onChange={e => {
+                  const templateId = e.target.value;
+                  setSelectedTemplateId(templateId);
+                  const template = localReadingPointLists.find(l => l.id === templateId && l.isModel);
+                  if (template) {
+                    setNewListName(template.name);
+                    setNewListDescription(template.description || '');
+                  } else {
+                    setNewListName('');
+                    setNewListDescription('');
+                  }
+                }}
+                style={{ marginLeft: '0.5rem' }}
+              >
+                <option value="">-- Select Template --</option>
+                {localReadingPointLists.filter(l => l.isModel).map(l => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ marginBottom: '0.5rem' }}>
+              <label>New List Name:</label>
+              <input type="text" value={newListName} onChange={e => setNewListName(e.target.value)} style={{ marginLeft: '0.5rem', width: '350px', height: '2.2em', fontSize: '1.1em' }} />
+            </div>
+            <div style={{ marginBottom: '0.5rem' }}>
+              <label>Description:</label>
+              <textarea value={newListDescription} onChange={e => setNewListDescription(e.target.value)} style={{ marginLeft: '0.5rem', width: '350px', height: '4em', fontSize: '1.1em', resize: 'vertical' }} />
+            </div>
+            <button className="btn btn-primary" onClick={handleCreateListFromTemplate}>Create List</button>
+          </div>
+        )}
+      </div>
       <header className="app-header">
         <div className="header-content">
           <h1>📊 Building Readings - Data Collection</h1>
@@ -165,7 +253,7 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
               and lists are managed by your administrator.
             </p>
             
-            {readingPointLists.length === 0 && (
+            {localReadingPointLists.length === 0 && (
               <div className="alert alert-info">
                 <h3>🚧 Setup Required</h3>
                 <p>
@@ -235,17 +323,17 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
             selectedRoom={selectedRoom}
             onRoomSelect={setSelectedRoom}
             allReadingPoints={readingPoints}
-            allReadingPointLists={readingPointLists}
+            allReadingPointLists={localReadingPointLists}
             allCompletedReadings={allCompletedReadings}
           />
         </div>
 
         {/* Quick Stats */}
-        {readingPointLists.length > 0 && (
+  {localReadingPointLists.length > 0 && (
           <div className="user-stats">
             <div className="stats-grid">
               <div className="stat-card">
-                <div className="stat-number">{selectedRoom ? filteredLists.length : readingPointLists.length}</div>
+                <div className="stat-number">{selectedRoom ? filteredLists.length : localReadingPointLists.length}</div>
                 <div className="stat-label">{selectedRoom ? 'Room Lists' : 'Available Lists'}</div>
               </div>
               <div className="stat-card">
@@ -269,7 +357,7 @@ const UserInterface: React.FC<UserInterfaceProps> = ({
         )}
 
         {/* Available Lists Overview */}
-        {(selectedRoom ? filteredLists : readingPointLists).length > 0 && (
+  {(selectedRoom ? filteredLists : localReadingPointLists).length > 0 && (
           <div className="available-lists">
             <h3>📋 {selectedRoom ? 'Room Reading Lists' : 'Available Reading Lists'}</h3>
             <div className="lists-grid">

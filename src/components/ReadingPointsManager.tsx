@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { USER_DATABASE } from '../auth';
 import { ReadingPoint, ReadingPointList, FieldDefinitions } from '../types';
 
 import './ReadingPointsManager.css';
@@ -56,13 +57,27 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
   // Utility functions
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString();
+    // If ISO string, extract date part
+    if (dateStr.includes('T')) {
+      const [datePart] = dateStr.split('T');
+      const [year, month, day] = datePart.split('-');
+      if (year && month && day) return `${month}/${day}/${year}`;
+      return dateStr;
+    }
+    // Parse YYYY-MM-DD as local date
+    const [year, month, day] = dateStr.split('-');
+    if (year && month && day) return `${month}/${day}/${year}`;
+    return dateStr;
   };
 
   const getUserDisplayName = (userId?: string) => {
-    // Replace with actual user lookup if available
-    return userId ?? 'Unknown';
+    if (!userId) return 'Unknown';
+    const user = USER_DATABASE.find((u) => u.id === userId);
+    if (user) {
+      if (user.fullName && user.fullName.trim() !== '') return user.fullName;
+      if (user.username && user.username.trim() !== '') return user.username;
+    }
+    return userId;
   };
 
   const getUniqueBuildings = () => {
@@ -381,12 +396,15 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
       return;
     }
 
+  // Always set createdAt and expectedCompletionDate to today
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const newListFromCopy: ReadingPointList = {
       id: Date.now().toString(),
       name: copyList.name,
       description: copyList.description || `Copy of ${originalList.name}`,
       pointIds: [...copyList.selectedPoints], // Use selected points from overlay
-      expectedCompletionDate: copyList.expectedCompletionDate || undefined,
+      expectedCompletionDate: today,
       createdBy: currentUserId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -454,13 +472,14 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
         }
       }
 
-      // Create the list based on template
+      // Always set createdAt and expectedCompletionDate to today for bulk-created lists
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
       const newList: ReadingPointList = {
         id: `bulk-${Date.now()}-${listIndex}`,
         name: listName,
         description: templateList.description || `Auto-generated from template: ${templateList.name}`,
         pointIds: [...templateList.pointIds], // Copy all points from template
-        expectedCompletionDate: dateString,
+        expectedCompletionDate: today,
         createdBy: currentUserId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

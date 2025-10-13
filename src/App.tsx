@@ -10,6 +10,10 @@ import { emailService } from './services/emailService';
 import './App.css';
 
 function App() {
+  // Force re-authentication on browser refresh, close, reopen, or new tab
+  useEffect(() => {
+    sessionStorage.removeItem('authState');
+  }, []);
   const [readings, setReadings] = useState<BuildingReading[]>([]);
   const [filteredReadings, setFilteredReadings] = useState<BuildingReading[]>([]);
   const [readingPoints, setReadingPoints] = useState<ReadingPoint[]>([]);
@@ -89,21 +93,10 @@ function App() {
     yesterday.setDate(yesterday.getDate() - 1);
     const twoDaysAgo = new Date(today);
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    
-    const realTestLists: ReadingPointList[] = [
-      {
-        id: 'daily-rounds',
-        name: 'Daily Building Monitoring Rounds',
-        description: 'Comprehensive daily monitoring of all key building systems including HVAC, electrical, plumbing, environmental controls, and energy consumption',
-        pointIds: ['point-1', 'point-1b', 'point-2', 'point-2b', 'point-3', 'point-3b', 'point-4', 'point-4b', 'point-5', 'point-5b'],
-        expectedCompletionDate: today.toISOString().split('T')[0],
-        createdBy: 'admin123',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
+    const realTestLists = [
       {
         id: 'emergency-systems-overdue',
-        name: 'Emergency Systems Check (OVERDUE)',
+        name: 'Emergency Systems Verification (OVERDUE)',
         description: 'Overdue emergency systems verification - fire alarms, sprinklers, emergency lighting, and safety equipment',
         pointIds: ['point-1', 'point-2', 'point-3'],
         expectedCompletionDate: yesterday.toISOString().split('T')[0],
@@ -122,7 +115,6 @@ function App() {
         updatedAt: twoDaysAgo.toISOString()
       }
     ];
-    
     setReadingPointLists(realTestLists);
   }, []);
 
@@ -741,7 +733,8 @@ function App() {
           ) : (
             <UserInterface
               readingPoints={readingPoints}
-              readingPointLists={readingPointLists}
+              initialReadingPointLists={readingPointLists}
+              onCreateUserList={list => setReadingPointLists(prev => [...prev, list])}
               readings={readings} // Add readings for trend analysis
               currentUserId={authState.currentUser?.id || ''}
               currentUserName={authState.currentUser?.fullName || authState.currentUser?.username || ''}
