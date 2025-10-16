@@ -15,6 +15,7 @@ interface ReadingPointsManagerProps {
   onAddList: (list: ReadingPointList) => void;
   onUpdateList: (id: string, updates: Partial<ReadingPointList>) => void;
   onDeleteList: (id: string) => void;
+  onUpdateFieldDefinitions: (definitions: FieldDefinitions) => void;
 }
 
 const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
@@ -27,7 +28,8 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
   onDeletePoint,
   onAddList,
   onUpdateList,
-  onDeleteList
+  onDeleteList,
+  onUpdateFieldDefinitions
 
   }) => {
   // Tab state
@@ -53,6 +55,32 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
   const [editingPoint, setEditingPoint] = useState<string | null>(null);
   const [editingList, setEditingList] = useState<string | null>(null);
   const [copyingList, setCopyingList] = useState<string | null>(null);
+
+  // State for editing reading type
+  const [showEditReadingTypeModal, setShowEditReadingTypeModal] = useState(false);
+  const [editingReadingTypeIdx, setEditingReadingTypeIdx] = useState<number | null>(null);
+  const [editReadingTypeName, setEditReadingTypeName] = useState('');
+  const [editReadingTypeUnits, setEditReadingTypeUnits] = useState<string[]>([]);
+
+  // State for editing point modal
+  const [showEditPointModal, setShowEditPointModal] = useState(false);
+  const [editingPointId, setEditingPointId] = useState<string | null>(null);
+  const [editPointData, setEditPointData] = useState<ReadingPoint | null>(null);
+
+  // State for create point modal
+  const [showCreatePointModal, setShowCreatePointModal] = useState(false);
+  const [newPointData, setNewPointData] = useState<ReadingPoint>({
+    id: '',
+    name: '',
+    readingType: fieldDefinitions.readingTypes[0] || '',
+    unit: (fieldDefinitions.units[fieldDefinitions.readingTypes[0]] || [])[0] || '',
+    buildingName: fieldDefinitions.buildings[0] || '',
+    floor: fieldDefinitions.floors[0] || '',
+    room: fieldDefinitions.rooms[0] || '',
+    component: '',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+  });
 
   // Utility functions
   const formatDate = (dateStr: string) => {
@@ -207,6 +235,42 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
     selectedPoints: [] as string[],
     isModel: false
   });
+
+  // Add state for modal and mapping at the top of the component
+  const [showEditPointsModal, setShowEditPointsModal] = useState(false);
+  const [editingReadingType, setEditingReadingType] = useState<string | null>(null);
+  const [selectedPointsForType, setSelectedPointsForType] = useState<string[]>([]);
+  const [readingTypeToPointIds, setReadingTypeToPointIds] = useState<Record<string, string[]>>({});
+
+  // Define a type for Point
+  interface Point {
+    id: string;
+    name: string;
+    buildingName: string;
+    // Add other fields as needed
+  }
+
+  // Example: get allPoints from props, context, or local state
+  // For demo, define a placeholder array
+  const allPoints: Point[] = [];
+  // Replace with your actual data source
+
+  const openEditPointsModal = (readingType: string) => {
+    setEditingReadingType(readingType);
+    setSelectedPointsForType(readingTypeToPointIds[readingType] || []);
+    setShowEditPointsModal(true);
+  };
+
+  const handleSavePointsForType = () => {
+    if (!editingReadingType) return;
+    setReadingTypeToPointIds(prev => ({
+      ...prev,
+      [editingReadingType]: selectedPointsForType,
+    }));
+    setShowEditPointsModal(false);
+    setEditingReadingType(null);
+    setSelectedPointsForType([]);
+  };
 
   const handleAddPoint = (e: React.FormEvent) => {
     e.preventDefault();
@@ -634,6 +698,123 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
     return readingPoints.filter(point => pointIds.includes(point.id));
   };
 
+  const readingTypes = fieldDefinitions.readingTypes || [];
+
+  // Handler functions (place after state)
+  const handleSaveReadingType = () => {
+    if (editingReadingTypeIdx === null) return;
+    const updatedTypes = [...readingTypes];
+    updatedTypes[editingReadingTypeIdx] = editReadingTypeName;
+    const updatedUnits = { ...fieldDefinitions.units };
+    updatedUnits[editReadingTypeName] = editReadingTypeUnits;
+    // Remove old units if name changed
+    if (editReadingTypeName !== readingTypes[editingReadingTypeIdx]) {
+      delete updatedUnits[readingTypes[editingReadingTypeIdx]];
+    }
+    // Update fieldDefinitions
+    if (typeof onUpdateFieldDefinitions === 'function') {
+      onUpdateFieldDefinitions({
+        ...fieldDefinitions,
+        readingTypes: updatedTypes,
+        units: updatedUnits,
+      });
+    }
+    setShowEditReadingTypeModal(false);
+    setEditingReadingTypeIdx(null);
+  };
+
+  const handleDeleteReadingType = () => {
+    if (editingReadingTypeIdx === null) return;
+    const typeToDelete = readingTypes[editingReadingTypeIdx];
+    const updatedTypes = readingTypes.filter((_, i) => i !== editingReadingTypeIdx);
+    const updatedUnits = { ...fieldDefinitions.units };
+    delete updatedUnits[typeToDelete];
+    if (typeof onUpdateFieldDefinitions === 'function') {
+      onUpdateFieldDefinitions({
+        ...fieldDefinitions,
+        readingTypes: updatedTypes,
+        units: updatedUnits,
+      });
+    }
+    setShowEditReadingTypeModal(false);
+    setEditingReadingTypeIdx(null);
+  };
+
+  // Handler to open edit modal and load point data
+  const openEditPointModal = (pointId: string) => {
+    const point = readingPoints.find(p => p.id === pointId) || null;
+    setEditingPointId(pointId);
+    setEditPointData(point);
+    setShowEditPointModal(true);
+  };
+
+  // Handler to save changes
+  const handleSaveEditPoint = () => {
+    if (editingPointId && editPointData) {
+      onUpdatePoint(editingPointId, editPointData);
+      setShowEditPointModal(false);
+      setEditingPointId(null);
+      setEditPointData(null);
+    }
+  };
+
+  // Handler to update fields in modal
+  const handleEditPointFieldChange = (field: keyof ReadingPoint, value: any) => {
+    if (editPointData) {
+      setEditPointData({ ...editPointData, [field]: value });
+    }
+  };
+
+  // Handler to update fields in create modal
+  const handleCreatePointFieldChange = (field: keyof ReadingPoint, value: any) => {
+    setNewPointData({ ...newPointData, [field]: value });
+  };
+
+  // Handler to save new point
+  const handleSaveCreatePoint = () => {
+    if (newPointData.name.trim()) {
+      onAddPoint({
+        ...newPointData,
+        id: Date.now().toString(),
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      });
+      setShowCreatePointModal(false);
+      setNewPointData({
+        id: '',
+        name: '',
+        readingType: fieldDefinitions.readingTypes[0] || '',
+        unit: (fieldDefinitions.units[fieldDefinitions.readingTypes[0]] || [])[0] || '',
+        buildingName: fieldDefinitions.buildings[0] || '',
+        floor: fieldDefinitions.floors[0] || '',
+        room: fieldDefinitions.rooms[0] || '',
+        component: '',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      });
+    }
+  };
+
+  // Helper functions for dropdowns with fallback
+  const getDropdownOptions = (current: string, options: string[]) => {
+    const opts = options.includes(current) ? options : [current, ...options.filter(o => o !== current)];
+    return opts.filter((v, i, arr) => v && arr.indexOf(v) === i);
+  };
+  const getFloorsForBuilding = (building: string) => {
+    const filtered = readingPoints
+      .filter(p => p.buildingName === building)
+      .map(p => p.floor)
+      .filter((v, i, arr) => v && arr.indexOf(v) === i);
+    return getDropdownOptions(editPointData?.floor || '', filtered.length ? filtered : fieldDefinitions.floors);
+  };
+  const getRoomsForBuildingFloor = (building: string, floor: string) => {
+    const filtered = readingPoints
+      .filter(p => p.buildingName === building && p.floor === floor)
+      .map(p => p.room)
+      .filter((v, i, arr) => v && arr.indexOf(v) === i);
+    return getDropdownOptions(editPointData?.room || '', filtered.length ? filtered : fieldDefinitions.rooms);
+  };
+
   return (
   <>
       {/* Tab Navigation */}
@@ -771,235 +952,277 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
       )}
       {/* Points Tab */}
       {activeTab === 'points' && (
-        <div className="points-section">
-          {/* Add Point Form */}
-          {showAddPointForm && (
-            <div className="form-overlay">
-              <form className="add-point-form" onSubmit={handleAddPoint}>
-                <h4>Add New Reading Point</h4>
-                <div className="form-group">
-                  <label>Name *</label>
-                  <input type="text" value={newPoint.name} onChange={e => setNewPoint(prev => ({...prev, name: e.target.value}))} required />
+        <React.Fragment>
+          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn btn-primary" onClick={() => setShowCreatePointModal(true)}>
+              + Create Point
+            </button>
+          </div>
+          {/* Render the create point modal inside the tab */}
+          {showCreatePointModal && (
+            <div className="modal-overlay">
+              <div className="modal-content admin-modal-card" style={{
+                background: '#fff',
+                borderRadius: '10px',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.12)',
+                padding: '2rem',
+                maxWidth: '420px',
+                margin: '2rem auto',
+                position: 'relative'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ margin: 0 }}>Create Point</h3>
+                  <button
+                    className="btn btn-secondary"
+                    style={{ fontSize: '1.2em', padding: '0 0.5em', borderRadius: '50%' }}
+                    onClick={() => setShowCreatePointModal(false)}
+                    title="Close"
+                  >
+                    ×
+                  </button>
                 </div>
-                <div className="form-group">
-                  <label>Building *</label>
-                  <input type="text" value={newPoint.buildingName} onChange={e => setNewPoint(prev => ({...prev, buildingName: e.target.value}))} required />
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Name</label>
+                  <input
+                    className="form-control"
+                    type="text"
+                    value={newPointData.name}
+                    onChange={e => handleCreatePointFieldChange('name', e.target.value)}
+                  />
                 </div>
-                <div className="form-group">
-                  <label>Floor *</label>
-                  <input type="text" value={newPoint.floor} onChange={e => setNewPoint(prev => ({...prev, floor: e.target.value}))} required />
-                </div>
-                <div className="form-group">
-                  <label>Room *</label>
-                  <input type="text" value={newPoint.room} onChange={e => setNewPoint(prev => ({...prev, room: e.target.value}))} required />
-                </div>
-                <div className="form-group">
-                  <label>Reading Type</label>
-                  <select value={newPoint.readingType} onChange={e => setNewPoint(prev => ({...prev, readingType: e.target.value}))}>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Type</label>
+                  <select
+                    className="form-control"
+                    value={newPointData.readingType}
+                    onChange={e => handleCreatePointFieldChange('readingType', e.target.value)}
+                  >
                     {fieldDefinitions.readingTypes.map(type => (
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>Component</label>
-                  <input type="text" value={newPoint.component} onChange={e => setNewPoint(prev => ({...prev, component: e.target.value}))} />
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Unit</label>
+                  <select
+                    className="form-control"
+                    value={newPointData.unit}
+                    onChange={e => handleCreatePointFieldChange('unit', e.target.value)}
+                  >
+                    {(fieldDefinitions.units[newPointData.readingType] || []).map(unit => (
+                      <option key={unit} value={unit}>{unit}</option>
+                    ))}
+                  </select>
                 </div>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Building</label>
+                  <select
+                    className="form-control"
+                    value={newPointData.buildingName}
+                    onChange={e => handleCreatePointFieldChange('buildingName', e.target.value)}
+                  >
+                    {fieldDefinitions.buildings.map(bldg => (
+                      <option key={bldg} value={bldg}>{bldg}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Floor</label>
+                  <select
+                    className="form-control"
+                    value={newPointData.floor}
+                    onChange={e => handleCreatePointFieldChange('floor', e.target.value)}
+                  >
+                    {fieldDefinitions.floors.map(floor => (
+                      <option key={floor} value={floor}>{floor}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Room</label>
+                  <select
+                    className="form-control"
+                    value={newPointData.room}
+                    onChange={e => handleCreatePointFieldChange('room', e.target.value)}
+                  >
+                    {fieldDefinitions.rooms.map(room => (
+                      <option key={room} value={room}>{room}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '2rem' }}>
+                  <button className="btn btn-primary" onClick={handleSaveCreatePoint}>Save</button>
+                  <button className="btn btn-secondary" onClick={() => setShowCreatePointModal(false)}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Filter Controls */}
+          <div className="filter-controls">
+            <div className="filter-row">
+              <label>Building:</label>
+              <select value={selectedBuilding} onChange={e => handleBuildingChange(e.target.value)}>
+                <option value="all">All</option>
+                {getUniqueBuildings().map(b => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+              <label>Floor:</label>
+              <select value={selectedFloor} onChange={e => handleFloorChange(e.target.value)}>
+                <option value="all">All</option>
+                {getUniqueFloors().map(f => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
+              </select>
+              <label>Room:</label>
+              <select value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)}>
+                <option value="all">All</option>
+                {getUniqueRooms().map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {/* Points List */}
+          <div className="points-list">
+            {getFilteredPoints().length === 0 ? (
+              <div className="no-data">
+                <p>No reading points found for the selected filters.</p>
+              </div>
+            ) : (
+              <div className="points-grid">
+                {getFilteredPoints().map(point => (
+                  <div key={point.id} className="point-card">
+                    <div className="point-header">
+                      <h4>{point.name}</h4>
+                      <div className="point-actions">
+                        <button className="btn-icon edit" onClick={() => openEditPointModal(point.id)} title="Edit Point">✎</button>
+                        <button className="btn-icon delete" onClick={() => handleDeletePointWithConfirmation(point)} title="Delete Point">×</button>
+                      </div>
+                    </div>
+                    <div className="point-details">
+                      <p><strong>Location:</strong> {point.buildingName} - {point.floor} - {point.room}</p>
+                      <p><strong>Type:</strong> {point.readingType} {point.unit && `(${point.unit})`}</p>
+                      {point.component && <p><strong>Component:</strong> {point.component}</p>}
+                      {point.description && <p><strong>Description:</strong> {point.description}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </React.Fragment>
+      )}
+
+      {/* Lists Tab */}
+      {activeTab === 'lists' && (
+        <div className="lists-section">
+          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn btn-primary" onClick={() => setShowAddListForm(true)}>
+              + Add List
+            </button>
+          </div>
+          {/* Add List Form */}
+          {showAddListForm && (
+            <div className="form-overlay">
+              <form className="add-list-form" onSubmit={handleAddList}>
+                <h4>Create New Reading Point List</h4>
                 <div className="form-group">
-                  <label>Unit</label>
-                  <input type="text" value={newPoint.unit} onChange={e => setNewPoint(prev => ({...prev, unit: e.target.value}))} />
+                  <label>List Name *</label>
+                  <input type="text" value={newList.name} onChange={e => setNewList(prev => ({...prev, name: e.target.value}))} required />
                 </div>
                 <div className="form-group">
                   <label>Description</label>
-                  <textarea value={newPoint.description} onChange={e => setNewPoint(prev => ({...prev, description: e.target.value}))} rows={2} />
+                  <textarea value={newList.description} onChange={e => setNewList(prev => ({...prev, description: e.target.value}))} rows={2} />
                 </div>
                 <div className="form-group">
-                  <label>Validation Type</label>
-                  <select value={newPoint.validationType} onChange={e => setNewPoint(prev => ({...prev, validationType: e.target.value as 'range' | 'sat_unsat'}))}>
-                    <option value="range">Range</option>
-                    <option value="sat_unsat">Satisfactory/Unsatisfactory</option>
-                  </select>
+                  <label>Expected Completion Date</label>
+                  <input type="date" value={newList.expectedCompletionDate} onChange={e => setNewList(prev => ({...prev, expectedCompletionDate: e.target.value}))} />
                 </div>
-                {newPoint.validationType === 'range' && (
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label>Min Value</label>
-                      <input type="number" value={newPoint.minValue} onChange={e => setNewPoint(prev => ({...prev, minValue: e.target.value}))} />
-                    </div>
-                    <div className="form-group">
-                      <label>Max Value</label>
-                      <input type="number" value={newPoint.maxValue} onChange={e => setNewPoint(prev => ({...prev, maxValue: e.target.value}))} />
-                    </div>
+                <div className="form-group">
+                  <label>Select Reading Points *</label>
+                  <div className="points-selection">
+                    {readingPoints.filter(p => p.isActive).map(point => (
+                      <div key={point.id} className="point-checkbox">
+                        <input type="checkbox" id={`point-${point.id}`} checked={newList.selectedPoints.includes(point.id)} onChange={() => togglePointSelection(point.id)} />
+                        <label htmlFor={`point-${point.id}`}>{point.name} <small>{point.buildingName} - {point.floor} - {point.room}</small></label>
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
+                <div className="form-group">
+                  <label className="checkbox-label">
+                    <input type="checkbox" checked={newList.isModel} onChange={e => setNewList(prev => ({...prev, isModel: e.target.checked}))} />
+                    📋 Mark as Model Template
+                  </label>
+                </div>
                 <div className="form-actions">
-                  <button type="submit" className="btn btn-primary">Add Point</button>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddPointForm(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary">Create List</button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setShowAddListForm(false)}>Cancel</button>
                 </div>
               </form>
             </div>
           )}
-        {/* Filter Controls */}
-        <div className="filter-controls">
-          <div className="filter-row">
-            <label>Building:</label>
-            <select value={selectedBuilding} onChange={e => handleBuildingChange(e.target.value)}>
-              <option value="all">All</option>
-              {getUniqueBuildings().map(b => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
-            <label>Floor:</label>
-            <select value={selectedFloor} onChange={e => handleFloorChange(e.target.value)}>
-              <option value="all">All</option>
-              {getUniqueFloors().map(f => (
-                <option key={f} value={f}>{f}</option>
-              ))}
-            </select>
-            <label>Room:</label>
-            <select value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)}>
-              <option value="all">All</option>
-              {getUniqueRooms().map(r => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        {/* Points List */}
-        <div className="points-list">
-          {getFilteredPoints().length === 0 ? (
-            <div className="no-data">
-              <p>No reading points found for the selected filters.</p>
-            </div>
-          ) : (
-            <div className="points-grid">
-              {getFilteredPoints().map(point => (
-                <div key={point.id} className="point-card">
-                  <div className="point-header">
-                    <h4>{point.name}</h4>
-                    <div className="point-actions">
-                      <button className="btn-icon edit" onClick={() => startEditingPoint(point)} title="Edit Point">✎</button>
-                      <button className="btn-icon delete" onClick={() => handleDeletePointWithConfirmation(point)} title="Delete Point">×</button>
-                    </div>
-                  </div>
-                  <div className="point-details">
-                    <p><strong>Location:</strong> {point.buildingName} - {point.floor} - {point.room}</p>
-                    <p><strong>Type:</strong> {point.readingType} {point.unit && `(${point.unit})`}</p>
-                    {point.component && <p><strong>Component:</strong> {point.component}</p>}
-                    {point.description && <p><strong>Description:</strong> {point.description}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    )}
-
-    {/* Lists Tab */}
-    {activeTab === 'lists' && (
-      <div className="lists-section">
-        {/* Add List Form */}
-        {showAddListForm && (
+        {/* Copy List Form - always rendered when active */}
+        {showCopyListForm && (
           <div className="form-overlay">
-            <form className="add-list-form" onSubmit={handleAddList}>
-              <h4>Create New Reading Point List</h4>
+            <form className="add-list-form" onSubmit={handleCopyList}>
+              <h4>Copy Reading Point List</h4>
+              {copyList.isModel && (
+                <div className="model-template-context">
+                  <span className="badge model-badge">🔒 Copying Model Template</span>
+                </div>
+              )}
               <div className="form-group">
-                <label>List Name *</label>
-                <input type="text" value={newList.name} onChange={e => setNewList(prev => ({...prev, name: e.target.value}))} required />
+                <label>New List Name *</label>
+                <input type="text" value={copyList.name} onChange={e => setCopyList(prev => ({...prev, name: e.target.value}))} required />
               </div>
               <div className="form-group">
                 <label>Description</label>
-                <textarea value={newList.description} onChange={e => setNewList(prev => ({...prev, description: e.target.value}))} rows={2} />
+                <textarea value={copyList.description} onChange={e => setCopyList(prev => ({...prev, description: e.target.value}))} rows={2} />
               </div>
               <div className="form-group">
                 <label>Expected Completion Date</label>
-                <input type="date" value={newList.expectedCompletionDate} onChange={e => setNewList(prev => ({...prev, expectedCompletionDate: e.target.value}))} />
+                <input type="date" value={copyList.expectedCompletionDate} onChange={e => setCopyList(prev => ({...prev, expectedCompletionDate: e.target.value}))} />
               </div>
               <div className="form-group">
                 <label>Select Reading Points *</label>
                 <div className="points-selection">
                   {readingPoints.filter(p => p.isActive).map(point => (
                     <div key={point.id} className="point-checkbox">
-                      <input type="checkbox" id={`point-${point.id}`} checked={newList.selectedPoints.includes(point.id)} onChange={() => togglePointSelection(point.id)} />
-                      <label htmlFor={`point-${point.id}`}>{point.name} <small>{point.buildingName} - {point.floor} - {point.room}</small></label>
+                      <input
+                        type="checkbox"
+                        id={`copy-point-${point.id}`}
+                        checked={copyList.selectedPoints?.includes(point.id) || false}
+                        onChange={() => setCopyList(prev => ({
+                          ...prev,
+                          selectedPoints: prev.selectedPoints?.includes(point.id)
+                            ? prev.selectedPoints.filter(id => id !== point.id)
+                            : [...(prev.selectedPoints || []), point.id]
+                        }))}
+                      />
+                      <label htmlFor={`copy-point-${point.id}`}>
+                        <strong>{point.name}</strong><br />
+                        <small>{point.buildingName} - {point.floor} - {point.room}</small>
+                        {point.component && <><br /><small className="component-tag">📊 {point.component}</small></>}
+                      </label>
                     </div>
                   ))}
                 </div>
               </div>
               <div className="form-group">
                 <label className="checkbox-label">
-                  <input type="checkbox" checked={newList.isModel} onChange={e => setNewList(prev => ({...prev, isModel: e.target.checked}))} />
+                  <input type="checkbox" checked={copyList.isModel} onChange={e => setCopyList(prev => ({...prev, isModel: e.target.checked}))} />
                   📋 Mark as Model Template
                 </label>
               </div>
               <div className="form-actions">
-                <button type="submit" className="btn btn-primary">Create List</button>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowAddListForm(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Create Copy</button>
+                <button type="button" className="btn btn-secondary" onClick={() => { setShowCopyListForm(false); setCopyingList(null); setCopyList({ name: '', description: '', expectedCompletionDate: '', originalName: '', isModel: false, selectedPoints: [] }); }}>Cancel</button>
               </div>
             </form>
           </div>
         )}
-      {/* Copy List Form - always rendered when active */}
-      {showCopyListForm && (
-        <div className="form-overlay">
-          <form className="add-list-form" onSubmit={handleCopyList}>
-            <h4>Copy Reading Point List</h4>
-            {copyList.isModel && (
-              <div className="model-template-context">
-                <span className="badge model-badge">🔒 Copying Model Template</span>
-              </div>
-            )}
-            <div className="form-group">
-              <label>New List Name *</label>
-              <input type="text" value={copyList.name} onChange={e => setCopyList(prev => ({...prev, name: e.target.value}))} required />
-            </div>
-            <div className="form-group">
-              <label>Description</label>
-              <textarea value={copyList.description} onChange={e => setCopyList(prev => ({...prev, description: e.target.value}))} rows={2} />
-            </div>
-            <div className="form-group">
-              <label>Expected Completion Date</label>
-              <input type="date" value={copyList.expectedCompletionDate} onChange={e => setCopyList(prev => ({...prev, expectedCompletionDate: e.target.value}))} />
-            </div>
-            <div className="form-group">
-              <label>Select Reading Points *</label>
-              <div className="points-selection">
-                {readingPoints.filter(p => p.isActive).map(point => (
-                  <div key={point.id} className="point-checkbox">
-                    <input
-                      type="checkbox"
-                      id={`copy-point-${point.id}`}
-                      checked={copyList.selectedPoints?.includes(point.id) || false}
-                      onChange={() => setCopyList(prev => ({
-                        ...prev,
-                        selectedPoints: prev.selectedPoints?.includes(point.id)
-                          ? prev.selectedPoints.filter(id => id !== point.id)
-                          : [...(prev.selectedPoints || []), point.id]
-                      }))}
-                    />
-                    <label htmlFor={`copy-point-${point.id}`}>
-                      <strong>{point.name}</strong><br />
-                      <small>{point.buildingName} - {point.floor} - {point.room}</small>
-                      {point.component && <><br /><small className="component-tag">📊 {point.component}</small></>}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="form-group">
-              <label className="checkbox-label">
-                <input type="checkbox" checked={copyList.isModel} onChange={e => setCopyList(prev => ({...prev, isModel: e.target.checked}))} />
-                📋 Mark as Model Template
-              </label>
-            </div>
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">Create Copy</button>
-              <button type="button" className="btn btn-secondary" onClick={() => { setShowCopyListForm(false); setCopyingList(null); setCopyList({ name: '', description: '', expectedCompletionDate: '', originalName: '', isModel: false, selectedPoints: [] }); }}>Cancel</button>
-            </div>
-          </form>
-        </div>
-      )}
         {/* Bulk Create Lists Form */}
         {showBulkCreateForm && (
           <div className="form-overlay">
@@ -1155,6 +1378,284 @@ const ReadingPointsManager: React.FC<ReadingPointsManagerProps> = ({
             </form>
           </div>
         )}
+      </div>
+    )}
+
+    {/* Edit Points Modal */}
+    {showEditPointsModal && (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <h4>Edit Points for {editingReadingType?.replace('_', ' ').toUpperCase()}</h4>
+          <div style={{ color: 'red', fontWeight: 'bold' }}>MODAL IS OPEN</div>
+          <div style={{ maxHeight: '250px', overflowY: 'auto', marginBottom: '1rem' }}>
+            {(allPoints ?? []).length === 0 ? (
+              <p style={{ color: '#888' }}>No points available. (allPoints is empty)</p>
+            ) : (
+              (allPoints ?? []).map((point: Point) => (
+                <label key={point.id} style={{ display: 'block', marginBottom: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedPointsForType.includes(point.id)}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        setSelectedPointsForType([...selectedPointsForType, point.id]);
+                      } else {
+                        setSelectedPointsForType(selectedPointsForType.filter(id => id !== point.id));
+                      }
+                    }}
+                  />{' '}
+                  {point.name} ({point.buildingName})
+                </label>
+              ))
+            )}
+          </div>
+          <button className="btn btn-primary" onClick={handleSavePointsForType}>Save</button>
+          <button className="btn btn-secondary" onClick={() => setShowEditPointsModal(false)}>Cancel</button>
+        </div>
+      </div>
+    )}
+
+    {/* modal for editing reading type */}
+    {showEditReadingTypeModal && (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <h4>Edit Reading Type</h4>
+          <label>
+            Name:
+            <input
+              type="text"
+              value={editReadingTypeName}
+              onChange={e => setEditReadingTypeName(e.target.value)}
+              style={{ marginLeft: '0.5rem' }}
+            />
+          </label>
+          <div style={{ marginTop: '1rem' }}>
+            <strong>Units:</strong>
+            {(editReadingTypeUnits.length === 0) ? (
+              <p style={{ color: '#888' }}>No units assigned.</p>
+            ) : (
+              editReadingTypeUnits.map((unit, i) => (
+                <span key={unit} style={{ marginRight: '0.5rem' }}>{unit}</span>
+              ))
+            )}
+            <input
+              type="text"
+              placeholder="Add unit"
+              onKeyDown={e => {
+                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                  setEditReadingTypeUnits([...editReadingTypeUnits, e.currentTarget.value.trim()]);
+                  e.currentTarget.value = '';
+                }
+              }}
+              style={{ marginLeft: '0.5rem' }}
+            />
+          </div>
+          <div style={{ marginTop: '1rem' }}>
+            <button className="btn btn-primary" onClick={handleSaveReadingType}>Save</button>
+            <button className="btn btn-danger" onClick={handleDeleteReadingType} style={{ marginLeft: '0.5rem' }}>Delete</button>
+            <button className="btn btn-secondary" onClick={() => setShowEditReadingTypeModal(false)} style={{ marginLeft: '0.5rem' }}>Cancel</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Edit Point Modal */}
+    {showEditPointModal && editPointData && (
+      <div className="modal-overlay">
+        <div className="modal-content admin-modal-card" style={{
+          background: '#fff',
+          borderRadius: '10px',
+          boxShadow: '0 2px 16px rgba(0,0,0,0.12)',
+          padding: '2rem',
+          maxWidth: '420px',
+          margin: '2rem auto',
+          position: 'relative'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0 }}>Edit Point</h3>
+            <button
+              className="btn btn-secondary"
+              style={{ fontSize: '1.2em', padding: '0 0.5em', borderRadius: '50%' }}
+              onClick={() => { setShowEditPointModal(false); setEditingPoint(null); setEditPointData(null); }}
+              title="Close"
+            >
+              ×
+            </button>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Name</label>
+            <input
+              className="form-control"
+              type="text"
+              value={editPointData.name}
+              onChange={e => handleEditPointFieldChange('name', e.target.value)}
+            />
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Type</label>
+            <select
+              className="form-control"
+              value={editPointData.readingType}
+              onChange={e => handleEditPointFieldChange('readingType', e.target.value)}
+            >
+              {getDropdownOptions(editPointData.readingType, fieldDefinitions.readingTypes).map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Unit</label>
+            <select
+              className="form-control"
+              value={editPointData.unit}
+              onChange={e => handleEditPointFieldChange('unit', e.target.value)}
+            >
+              {getDropdownOptions(editPointData.unit, fieldDefinitions.units[editPointData.readingType] || []).map(unit => (
+                <option key={unit} value={unit}>{unit}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Building</label>
+            <select
+              className="form-control"
+              value={editPointData.buildingName}
+              onChange={e => handleEditPointFieldChange('buildingName', e.target.value)}
+            >
+              {getDropdownOptions(editPointData.buildingName, fieldDefinitions.buildings).map(bldg => (
+                <option key={bldg} value={bldg}>{bldg}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Floor</label>
+            <select
+              className="form-control"
+              value={editPointData.floor}
+              onChange={e => handleEditPointFieldChange('floor', e.target.value)}
+            >
+              {getFloorsForBuilding(editPointData.buildingName).map(floor => (
+                <option key={floor} value={floor}>{floor}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Room</label>
+            <select
+              className="form-control"
+              value={editPointData.room}
+              onChange={e => handleEditPointFieldChange('room', e.target.value)}
+            >
+              {getRoomsForBuildingFloor(editPointData.buildingName, editPointData.floor).map(room => (
+                <option key={room} value={room}>{room}</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '2rem' }}>
+            <button className="btn btn-primary" onClick={handleSaveEditPoint}>Save</button>
+            <button className="btn btn-secondary" onClick={() => { setShowEditPointModal(false); setEditingPoint(null); setEditPointData(null); }}>Cancel</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Create Point Modal */}
+    {showCreatePointModal && (
+      <div className="modal-overlay">
+        <div className="modal-content admin-modal-card" style={{
+          background: '#fff',
+          borderRadius: '10px',
+          boxShadow: '0 2px 16px rgba(0,0,0,0.12)',
+          padding: '2rem',
+          maxWidth: '420px',
+          margin: '2rem auto',
+          position: 'relative'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0 }}>Create Point</h3>
+            <button
+              className="btn btn-secondary"
+              style={{ fontSize: '1.2em', padding: '0 0.5em', borderRadius: '50%' }}
+              onClick={() => setShowCreatePointModal(false)}
+              title="Close"
+            >
+              ×
+            </button>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Name</label>
+            <input
+              className="form-control"
+              type="text"
+              value={newPointData.name}
+              onChange={e => handleCreatePointFieldChange('name', e.target.value)}
+            />
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Type</label>
+            <select
+              className="form-control"
+              value={newPointData.readingType}
+              onChange={e => handleCreatePointFieldChange('readingType', e.target.value)}
+            >
+              {fieldDefinitions.readingTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Unit</label>
+            <select
+              className="form-control"
+              value={newPointData.unit}
+              onChange={e => handleCreatePointFieldChange('unit', e.target.value)}
+            >
+              {(fieldDefinitions.units[newPointData.readingType] || []).map(unit => (
+                <option key={unit} value={unit}>{unit}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Building</label>
+            <select
+              className="form-control"
+              value={newPointData.buildingName}
+              onChange={e => handleCreatePointFieldChange('buildingName', e.target.value)}
+            >
+              {fieldDefinitions.buildings.map(bldg => (
+                <option key={bldg} value={bldg}>{bldg}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Floor</label>
+            <select
+              className="form-control"
+              value={newPointData.floor}
+              onChange={e => handleCreatePointFieldChange('floor', e.target.value)}
+            >
+              {fieldDefinitions.floors.map(floor => (
+                <option key={floor} value={floor}>{floor}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label">Room</label>
+            <select
+              className="form-control"
+              value={newPointData.room}
+              onChange={e => handleCreatePointFieldChange('room', e.target.value)}
+            >
+              {fieldDefinitions.rooms.map(room => (
+                <option key={room} value={room}>{room}</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '2rem' }}>
+            <button className="btn btn-primary" onClick={handleSaveCreatePoint}>Save</button>
+            <button className="btn btn-secondary" onClick={() => setShowCreatePointModal(false)}>Cancel</button>
+          </div>
+        </div>
       </div>
     )}
   </>);

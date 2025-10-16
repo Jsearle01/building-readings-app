@@ -5,17 +5,23 @@ import UserManagement from './UserManagement';
 interface SuperAdminInterfaceProps {
   fieldDefinitions: FieldDefinitions;
   onUpdateFieldDefinitions: (definitions: FieldDefinitions) => void;
+  allPoints: any[]; // Replace 'any' with your actual point type
 }
 
 const SuperAdminInterface: React.FC<SuperAdminInterfaceProps> = ({
   fieldDefinitions,
-  onUpdateFieldDefinitions
+  onUpdateFieldDefinitions,
+  allPoints
 }) => {
   const [activeTab, setActiveTab] = useState<'buildings' | 'floors' | 'rooms' | 'components' | 'reading-types' | 'units' | 'users'>('buildings');
   const [editingField, setEditingField] = useState<string>('');
   const [newValue, setNewValue] = useState<string>('');
   const [newReadingType, setNewReadingType] = useState<string>('');
   const [newReadingTypeUnits, setNewReadingTypeUnits] = useState<string>('');
+  const [showEditReadingTypeModal, setShowEditReadingTypeModal] = useState(false);
+  const [editingReadingTypeIdx, setEditingReadingTypeIdx] = useState<number | null>(null);
+  const [editReadingTypeName, setEditReadingTypeName] = useState('');
+  const [editReadingTypeUnits, setEditReadingTypeUnits] = useState<string[]>([]);
 
   const handleAddValue = (field: keyof FieldDefinitions) => {
     if (!newValue.trim()) return;
@@ -238,9 +244,9 @@ const SuperAdminInterface: React.FC<SuperAdminInterfaceProps> = ({
               </div>
 
               <div className="reading-types-list">
-                <h4>Current Reading Types ({fieldDefinitions.readingTypes.length})</h4>
+                <h4>Current Reading Types ({(fieldDefinitions?.readingTypes ?? []).length})</h4>
                 <div className="reading-types-grid">
-                  {fieldDefinitions.readingTypes.map((readingType, index) => (
+                  {(fieldDefinitions?.readingTypes ?? []).map((readingType, index) => (
                     <div key={index} className="reading-type-item">
                       <div className="reading-type-info">
                         <strong>{readingType.replace('_', ' ').toUpperCase()}</strong>
@@ -361,7 +367,7 @@ const SuperAdminInterface: React.FC<SuperAdminInterfaceProps> = ({
                   </div>
 
                   <div className="units-list">
-                    {fieldDefinitions.units[readingType].map((unit, index) => (
+                    {(fieldDefinitions.units[readingType] ?? []).map((unit, index) => (
                       <div key={index} className="unit-item">
                         <span className="unit-text">{unit}</span>
                         <button

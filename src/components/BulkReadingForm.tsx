@@ -360,7 +360,6 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     const readings: BuildingReading[] = readingEntries.map(entry => {
       const point = readingPoints.find(p => p.id === entry.pointId);
       if (!point) throw new Error(`Reading point not found: ${entry.pointId}`);
-
       return {
         id: `${Date.now()}-${entry.pointId}`,
         buildingName: point.buildingName,
@@ -369,11 +368,28 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
         readingType: point.readingType,
         value: point.validationType === 'sat_unsat' ? entry.value : Number(entry.value),
         unit: point.unit,
-        timestamp: new Date(timestamp).toISOString(),
+        timestamp: toLocalISOString(new Date(timestamp)),
         notes: entry.notes || undefined,
         pointId: point.id
       };
     });
+
+// Returns local time in ISO 8601 format with timezone offset
+function toLocalISOString(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hour = pad(date.getHours());
+  const min = pad(date.getMinutes());
+  const sec = pad(date.getSeconds());
+  const ms = String(date.getMilliseconds()).padStart(3, '0');
+  const tzOffset = -date.getTimezoneOffset();
+  const sign = tzOffset >= 0 ? '+' : '-';
+  const offsetHour = pad(Math.floor(Math.abs(tzOffset) / 60));
+  const offsetMin = pad(Math.abs(tzOffset) % 60);
+  return `${year}-${month}-${day}T${hour}:${min}:${sec}.${ms}${sign}${offsetHour}:${offsetMin}`;
+}
 
     if (requiresReview && onSubmitForReview && currentUserId) {
       // Submit for review
@@ -382,10 +398,9 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
         submittedBy: currentUserId,
         listId: selectedList || undefined,
         listName: selectedListObj?.name,
-        readings,
+        readings: readings,
         submissionNotes: submissionNotes || undefined
       };
-      
       onSubmitForReview(submission);
       alert(`Successfully submitted ${readings.length} readings for review!`);
     } else {
@@ -393,7 +408,6 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
       onSubmit(readings);
       alert(`Successfully added ${readings.length} readings!`);
     }
-
     // Reset form
     setSelectedList('');
     setSelectedPoints([]);

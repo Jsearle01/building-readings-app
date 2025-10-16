@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import AdminInterface from './components/AdminInterface';
 import UserInterface from './components/UserInterface';
 import SuperAdminInterface from './components/SuperAdminInterface';
@@ -10,14 +10,7 @@ import { emailService } from './services/emailService';
 import './App.css';
 
 function App() {
-  // Force re-authentication on browser refresh, close, reopen, or new tab
-  useEffect(() => {
-    sessionStorage.removeItem('authState');
-  }, []);
   const [readings, setReadings] = useState<BuildingReading[]>([]);
-  const [filteredReadings, setFilteredReadings] = useState<BuildingReading[]>([]);
-  const [readingPoints, setReadingPoints] = useState<ReadingPoint[]>([]);
-  const [readingPointLists, setReadingPointLists] = useState<ReadingPointList[]>([]);
   const [selectedReadingType, setSelectedReadingType] = useState<ReadingType | 'all'>('all');
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
   const [chartType, setChartType] = useState<ChartType>('line');
@@ -29,6 +22,8 @@ function App() {
   });
   const [fieldDefinitions, setFieldDefinitions] = useState<FieldDefinitions>(DEFAULT_FIELD_DEFINITIONS);
   const [reviewSubmissions, setReviewSubmissions] = useState<ReviewSubmission[]>([]);
+  const [readingPoints, setReadingPoints] = useState<ReadingPoint[]>([]);
+  const [readingPointLists, setReadingPointLists] = useState<ReadingPointList[]>([]);
 
   // Debug function for localStorage - accessible from browser console
   (window as any).debugLocalStorage = () => {
@@ -85,69 +80,36 @@ function App() {
     clearAuthState();
   };
 
-  // Load data from localStorage on component mount
-  // Create realistic test data with overdue lists
+  // Force re-authentication for all roles on page refresh
   useEffect(() => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const twoDaysAgo = new Date(today);
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    const realTestLists = [
-      {
-        id: 'emergency-systems-overdue',
-        name: 'Emergency Systems Verification (OVERDUE)',
-        description: 'Overdue emergency systems verification - fire alarms, sprinklers, emergency lighting, and safety equipment',
-        pointIds: ['point-1', 'point-2', 'point-3'],
-        expectedCompletionDate: yesterday.toISOString().split('T')[0],
-        createdBy: 'admin123',
-        createdAt: yesterday.toISOString(),
-        updatedAt: yesterday.toISOString()
-      },
-      {
-        id: 'hvac-quarterly-overdue',
-        name: 'HVAC Quarterly Inspection (OVERDUE)',
-        description: 'Overdue quarterly HVAC system inspection and maintenance verification',
-        pointIds: ['point-4', 'point-5', 'point-1b', 'point-2b'],
-        expectedCompletionDate: twoDaysAgo.toISOString().split('T')[0],
-        createdBy: 'admin123',
-        createdAt: twoDaysAgo.toISOString(),
-        updatedAt: twoDaysAgo.toISOString()
-      }
-    ];
-    setReadingPointLists(realTestLists);
-  }, []);
-
-  useEffect(() => {
+    clearAuthState();
+    setAuthState({
+      isAuthenticated: false,
+      currentUser: null,
+      currentRole: null
+    });
     try {
       // Load user database first
       initializeUserDatabase();
-      
-      // Load authentication state
-      const savedAuthState = loadAuthState();
-      if (savedAuthState && savedAuthState.isAuthenticated) {
-        setAuthState(savedAuthState);
-      }
 
       const savedReadings = localStorage.getItem('buildingReadings');
       const savedPoints = localStorage.getItem('readingPoints');
       const savedLists = localStorage.getItem('readingPointLists');
       const savedFieldDefinitions = localStorage.getItem('fieldDefinitions');
       const savedReviewSubmissions = localStorage.getItem('reviewSubmissions');
-      
+
       console.log('Loading data from localStorage...');
-      console.log('Auth state:', savedAuthState ? 'authenticated' : 'not authenticated');
+      console.log('Auth state: forced re-authentication');
       console.log('Raw savedPoints:', savedPoints);
       console.log('Saved readings:', savedReadings ? JSON.parse(savedReadings).length : 0);
       console.log('Saved points:', savedPoints ? JSON.parse(savedPoints).length : 0);
       console.log('Saved lists:', savedLists ? JSON.parse(savedLists).length : 0);
       console.log('Saved field definitions:', savedFieldDefinitions ? 'loaded' : 'using defaults');
       console.log('Saved review submissions:', savedReviewSubmissions ? JSON.parse(savedReviewSubmissions).length : 0);
-      
+
       if (savedReadings) {
         const parsedReadings = JSON.parse(savedReadings);
         setReadings(parsedReadings);
-        setFilteredReadings(parsedReadings);
       } else {
         // Create default dummy readings if none exist
         const defaultReadings: BuildingReading[] = [
@@ -283,7 +245,6 @@ function App() {
         ];
         console.log('📊 DUMMY DATA LOADED: 10 sample readings created (mix of numeric and SAT/UNSAT)!');
         setReadings(defaultReadings);
-        setFilteredReadings(defaultReadings);
       }
       
       if (savedPoints) {
@@ -541,7 +502,7 @@ function App() {
     // Sort by timestamp (newest first)
     filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-    setFilteredReadings(filtered);
+    setReadings(filtered);
   }, [readings, selectedReadingType, selectedBuilding]);
 
   const addBulkReadings = (readings: BuildingReading[]) => {
@@ -703,6 +664,7 @@ function App() {
             <SuperAdminInterface
               fieldDefinitions={fieldDefinitions}
               onUpdateFieldDefinitions={setFieldDefinitions}
+              allPoints={readingPoints}
             />
           ) : authState.currentRole === 'reviewer' ? (
             <ReviewerInterface

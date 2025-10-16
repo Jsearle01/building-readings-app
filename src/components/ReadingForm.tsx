@@ -1,4 +1,27 @@
+
 import React, { useState } from 'react';
+// ...existing code...
+
+// Returns local time in ISO 8601 format with timezone offset
+function toLocalISOString(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hour = pad(date.getHours());
+  const min = pad(date.getMinutes());
+  const sec = pad(date.getSeconds());
+  const ms = String(date.getMilliseconds()).padStart(3, '0');
+  const tzOffset = -date.getTimezoneOffset();
+  const sign = tzOffset >= 0 ? '+' : '-';
+  const offsetHour = pad(Math.floor(Math.abs(tzOffset) / 60));
+  const offsetMin = pad(Math.abs(tzOffset) % 60);
+  return `${year}-${month}-${day}T${hour}:${min}:${sec}.${ms}${sign}${offsetHour}:${offsetMin}`;
+}
+
+function getLocalISOTime(): string {
+  return toLocalISOString(new Date());
+}
 import { ReadingFormData, ReadingType } from '../types';
 
 interface ReadingFormProps {
@@ -28,7 +51,7 @@ const ReadingForm: React.FC<ReadingFormProps> = ({ onSubmit }) => {
   });
 
   const handleReadingTypeChange = (type: ReadingType) => {
-    setFormData(prev => ({
+    setFormData((prev: ReadingFormData) => ({
       ...prev,
       readingType: type,
       unit: readingTypeUnits[type]
@@ -37,17 +60,14 @@ const ReadingForm: React.FC<ReadingFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!formData.buildingName || !formData.floor || !formData.room) {
       alert('Please fill in all required fields');
       return;
     }
-
     onSubmit({
       ...formData,
-      timestamp: new Date().toISOString()
+      timestamp: toLocalISOString(new Date())
     });
-
     // Reset form
     setFormData({
       buildingName: '',
@@ -69,7 +89,7 @@ const ReadingForm: React.FC<ReadingFormProps> = ({ onSubmit }) => {
             type="text"
             id="buildingName"
             value={formData.buildingName}
-            onChange={(e) => setFormData(prev => ({ ...prev, buildingName: e.target.value }))}
+            onChange={(e) => setFormData((prev: ReadingFormData) => ({ ...prev, buildingName: e.target.value }))}
             placeholder="e.g., Main Office Building"
             required
           />
@@ -81,7 +101,7 @@ const ReadingForm: React.FC<ReadingFormProps> = ({ onSubmit }) => {
             type="text"
             id="floor"
             value={formData.floor}
-            onChange={(e) => setFormData(prev => ({ ...prev, floor: e.target.value }))}
+            onChange={(e) => setFormData((prev: ReadingFormData) => ({ ...prev, floor: e.target.value }))}
             placeholder="e.g., Ground Floor, 2nd Floor"
             required
           />
@@ -93,7 +113,7 @@ const ReadingForm: React.FC<ReadingFormProps> = ({ onSubmit }) => {
             type="text"
             id="room"
             value={formData.room}
-            onChange={(e) => setFormData(prev => ({ ...prev, room: e.target.value }))}
+            onChange={(e) => setFormData((prev: ReadingFormData) => ({ ...prev, room: e.target.value }))}
             placeholder="e.g., Conference Room A, Lobby"
             required
           />
@@ -124,7 +144,7 @@ const ReadingForm: React.FC<ReadingFormProps> = ({ onSubmit }) => {
             type="number"
             id="value"
             value={formData.value}
-            onChange={(e) => setFormData(prev => ({ ...prev, value: parseFloat(e.target.value) || 0 }))}
+            onChange={(e) => setFormData((prev: ReadingFormData) => ({ ...prev, value: parseFloat(e.target.value) || 0 }))}
             step="0.01"
             required
           />
@@ -136,7 +156,7 @@ const ReadingForm: React.FC<ReadingFormProps> = ({ onSubmit }) => {
             type="text"
             id="unit"
             value={formData.unit}
-            onChange={(e) => setFormData(prev => ({ ...prev, unit: e.target.value }))}
+            onChange={(e) => setFormData((prev: ReadingFormData) => ({ ...prev, unit: e.target.value }))}
             placeholder="Unit of measurement"
           />
         </div>
@@ -147,7 +167,7 @@ const ReadingForm: React.FC<ReadingFormProps> = ({ onSubmit }) => {
         <textarea
           id="notes"
           value={formData.notes}
-          onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+          onChange={(e) => setFormData((prev: ReadingFormData) => ({ ...prev, notes: e.target.value }))}
           placeholder="Additional notes or observations"
           rows={3}
           style={{ width: '100%', padding: '0.75rem', border: '1px solid #ccc', borderRadius: '4px' }}
