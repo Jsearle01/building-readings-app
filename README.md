@@ -16,7 +16,7 @@ cd building-readings-app
 npm install
 npm run dev
 ```
-Open your browser at `http://localhost:5173`.
+Open your browser at `http://localhost:3000/`.
 
 ## 🔑 Default Logins
 
@@ -27,15 +27,21 @@ Open your browser at `http://localhost:5173`.
 | Reviewer     | reviewer     | reviewer123   |
 | Super Admin  | superadmin   | super123      |
 
+
 ## ✨ Features
 
 - Multi-role: User, Admin, Reviewer, Super Admin
+- Superadmin-only management of reading types, units, and field definitions (add/edit/delete)
+- "Manage" button for reading types with modal-based editing and deletion (Superadmin only)
 - Dual validation: Numeric range & SAT/UNSAT
 - Overdue list detection & date management
 - Bulk entry, progress tracking, and comment requirements
-- Responsive UI, role-based navigation
+- Bulk create lists from templates (date/frequency options)
+- Modal for bulk adding points to lists
+- Responsive UI, role-based navigation (superadmin/admin controls only visible to correct roles)
 - LocalStorage persistence
 - Forced re-authentication on browser refresh, close, or new tab
+- All reading timestamps stored in local ISO format for accuracy
 
 ## 📁 Project Structure
 
@@ -47,9 +53,30 @@ src/
 │   ├── ReviewerInterface.tsx
 │   ├── BulkReadingForm.tsx
 │   ├── ReadingPointsManager.tsx
+│   ├── SuperAdminInterface.tsx
 │   ├── DataTable.tsx
 │   ├── Login.tsx
 │   └── *.css
+## 🛡️ Role-Based UI
+
+- Superadmins can manage reading types, units, and field definitions (add/edit/delete)
+- Only superadmins see reading type management controls
+- Admins can manage points/lists, but not reading types
+## 🗂️ Data Types Supported
+
+| Reading Type | Default Unit | Description |
+|-------------|-------------|-------------|
+| Temperature | °C | Room/area temperature |
+| Humidity | % | Relative humidity percentage |
+| Energy | kWh | Energy consumption |
+| Water | L | Water usage |
+| Gas | m³ | Gas consumption |
+| Occupancy | people | Number of occupants |
+| Air Quality | ppm | Air quality measurement |
+| Lighting | lux | Light level measurement |
+## 🕒 Timestamp Handling
+
+- All reading timestamps are stored in the user's local ISO format for consistency and accuracy.
 ├── types.ts
 ├── auth.ts
 ├── App.tsx
@@ -336,7 +363,8 @@ The primary method for efficient data collection:
 3. **Monitor trends**: Regular review of historical data for patterns
 4. **Export data**: Use table view for detailed analysis or reporting
 
-## Project Structure
+
+## 📁 Project Structure
 
 ```
 src/
@@ -344,9 +372,16 @@ src/
 │   ├── ReadingForm.tsx  # Individual reading input
 │   ├── BulkReadingForm.tsx # Bulk data entry
 │   ├── ReadingPointsManager.tsx # Points & lists management
+│   ├── SuperAdminInterface.tsx # Superadmin dashboard for field/unit/type management
 │   ├── DataTable.tsx    # Data display table
 │   ├── ChartView.tsx    # Chart visualization
 │   └── Controls.tsx     # Filter controls
+## 🤖 Copilot Workspace Customization
+
+- See `.github/copilot-instructions.md` for workspace-specific Copilot guidance and best practices.
+## 🌐 GitHub Integration
+
+- This project is version-controlled and regularly pushed to GitHub for backup and collaboration.
 ├── types.ts            # TypeScript type definitions
 ├── App.tsx             # Main application component
 ├── App.css             # Application-specific styles
