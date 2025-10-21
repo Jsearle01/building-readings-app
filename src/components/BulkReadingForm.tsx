@@ -59,7 +59,7 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     similarReadings: BuildingReading[];
   } | null>(null);
 
-  const activePoints = readingPoints.filter(p => p.isActive);
+  const activePoints = readingPoints.filter((p: ReadingPoint) => p.isActive);
 
   // Helper function to check if completion is allowed (due today or overdue)
   const isCompletionDateValid = (list: ReadingPointList): { isValid: boolean; message?: string } => {
@@ -90,27 +90,23 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
   // Get reading lists that are incomplete and due today or overdue (by expected completion date)
   const getIncompleteOverdueLists = (): ReadingPointList[] => {
     const today = format(new Date(), 'yyyy-MM-dd');
-    
-    return readingPointLists.filter(list => {
+    return readingPointLists.filter((list: ReadingPointList) => {
       // Skip model templates - they are never meant to be worked
       if (list.isModel) {
         return false;
       }
-      
       // Check if list has an expected completion date
       if (!list.expectedCompletionDate) {
         return false; // Skip lists without due dates
       }
-      
       // Check if the due date is today or earlier (includes both today and overdue)
       const dueDate = list.expectedCompletionDate;
       const isDueOrOverdue = dueDate <= today;
       if (!isDueOrOverdue) {
         return false; // Skip future lists
       }
-      
       // Check if the list has incomplete points
-      const hasIncompletePoints = list.pointIds.some(pointId => !completedPoints.has(pointId));
+      const hasIncompletePoints = list.pointIds.some((pointId: string) => !completedPoints.has(pointId));
       return hasIncompletePoints;
     });
   };
@@ -120,13 +116,12 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     if (onListSelection) {
       onListSelection(listId);
     }
-    
     if (listId) {
-      const list = readingPointLists.find(l => l.id === listId);
+      const list = readingPointLists.find((l: ReadingPointList) => l.id === listId);
       if (list) {
         setSelectedPoints(list.pointIds);
         // Initialize reading entries for the selected points
-        const entries = list.pointIds.map(pointId => ({
+        const entries = list.pointIds.map((pointId: string) => ({
           pointId,
           value: 0,
           notes: ''
@@ -141,11 +136,11 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
 
   const handlePointToggle = (pointId: string) => {
     if (selectedPoints.includes(pointId)) {
-      setSelectedPoints(prev => prev.filter(id => id !== pointId));
-      setReadingEntries(prev => prev.filter(entry => entry.pointId !== pointId));
+      setSelectedPoints((prev: string[]) => prev.filter((id: string) => id !== pointId));
+      setReadingEntries((prev: BulkReadingEntry[]) => prev.filter((entry: BulkReadingEntry) => entry.pointId !== pointId));
     } else {
-      setSelectedPoints(prev => [...prev, pointId]);
-      setReadingEntries(prev => [...prev, { pointId, value: 0, notes: '' }]);
+      setSelectedPoints((prev: string[]) => [...prev, pointId]);
+      setReadingEntries((prev: BulkReadingEntry[]) => [...prev, { pointId, value: 0, notes: '' }]);
     }
   };
 
@@ -155,7 +150,7 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
       return;
     }
     
-    setReadingEntries(prev => prev.map(entry => 
+    setReadingEntries((prev: BulkReadingEntry[]) => prev.map((entry: BulkReadingEntry) => 
       entry.pointId === pointId 
         ? { ...entry, [field]: value }
         : entry
@@ -169,7 +164,7 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     }
     
     if (onPointComplete) {
-      const entry = readingEntries.find(e => e.pointId === pointId);
+  const entry = readingEntries.find((e: BulkReadingEntry) => e.pointId === pointId);
       const completion: PointCompletion | undefined = completed ? {
         pointId,
         completedAt: new Date().toISOString(),
@@ -202,7 +197,7 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
   };
 
   const hasValidValue = (pointId: string) => {
-    const entry = readingEntries.find(e => e.pointId === pointId);
+    const entry = readingEntries.find((e: BulkReadingEntry) => e.pointId === pointId);
     const point = getPointById(pointId);
     
     if (!entry || !point) return false;
@@ -217,7 +212,7 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
   };
 
   const isValueInRange = (pointId: string): boolean => {
-    const entry = readingEntries.find(e => e.pointId === pointId);
+    const entry = readingEntries.find((e: BulkReadingEntry) => e.pointId === pointId);
     const point = getPointById(pointId);
     
     if (!entry || !point) {
@@ -250,7 +245,7 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
   };
 
   const isValueOutOfRange = (pointId: string): boolean => {
-    const entry = readingEntries.find(e => e.pointId === pointId);
+    const entry = readingEntries.find((e: BulkReadingEntry) => e.pointId === pointId);
     const point = getPointById(pointId);
     
     if (!entry || !point || point.validationType !== 'range') {
@@ -279,24 +274,19 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     if (!hasValidValue(pointId)) {
       return false;
     }
-    
-    const entry = readingEntries.find(e => e.pointId === pointId);
+    const entry = readingEntries.find((e: BulkReadingEntry) => e.pointId === pointId);
     const point = getPointById(pointId);
-    
     if (!entry || !point) {
       return false;
     }
-    
     // For UNSAT values, require a comment
     if (point.validationType === 'sat_unsat' && entry.value === 'UNSAT') {
       return entry.notes && entry.notes.trim().length > 0;
     }
-    
     // For out-of-range values, require a comment
     if (isValueOutOfRange(pointId)) {
       return entry.notes && entry.notes.trim().length > 0;
     }
-    
     // For in-range values, no comment required
     return isValueInRange(pointId);
   };
@@ -304,13 +294,12 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
   // Handle trend analysis for a specific reading point
   const handleTrendAnalysis = (selectedPoint: ReadingPoint) => {
     // Find similar readings based on building, room, and reading type
-    const similarReadings = readings.filter(reading => 
+    const similarReadings = readings.filter((reading: BuildingReading) => 
       reading.buildingName === selectedPoint.buildingName &&
       reading.room === selectedPoint.room &&
       reading.readingType === selectedPoint.readingType &&
       reading.pointId !== selectedPoint.id
-    ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-
+    ).sort((a: BuildingReading, b: BuildingReading) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     setTrendAnalysis({
       reading: selectedPoint,
       similarReadings: similarReadings
@@ -322,7 +311,7 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     setTrendAnalysis(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // If individual selection is not allowed, require a list selection
@@ -340,10 +329,9 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     }
 
     // Validate that all entries have values
-    const invalidEntries = readingEntries.filter(entry => {
-      const point = readingPoints.find(p => p.id === entry.pointId);
+    const invalidEntries = readingEntries.filter((entry: BulkReadingEntry) => {
+      const point = readingPoints.find((p: ReadingPoint) => p.id === entry.pointId);
       if (!point) return true;
-      
       if (point.validationType === 'sat_unsat') {
         return entry.value !== 'SAT' && entry.value !== 'UNSAT';
       } else {
@@ -357,8 +345,8 @@ const BulkReadingForm: React.FC<BulkReadingFormProps> = ({
     }
 
     // Convert entries to BuildingReading objects
-    const readings: BuildingReading[] = readingEntries.map(entry => {
-      const point = readingPoints.find(p => p.id === entry.pointId);
+    const readings: BuildingReading[] = readingEntries.map((entry: BulkReadingEntry) => {
+      const point = readingPoints.find((p: ReadingPoint) => p.id === entry.pointId);
       if (!point) throw new Error(`Reading point not found: ${entry.pointId}`);
       return {
         id: `${Date.now()}-${entry.pointId}`,
@@ -393,7 +381,7 @@ function toLocalISOString(date: Date): string {
 
     if (requiresReview && onSubmitForReview && currentUserId) {
       // Submit for review
-      const selectedListObj = readingPointLists.find(l => l.id === selectedList);
+  const selectedListObj = readingPointLists.find((l: ReadingPointList) => l.id === selectedList);
       const submission = {
         submittedBy: currentUserId,
         listId: selectedList || undefined,
@@ -417,17 +405,16 @@ function toLocalISOString(date: Date): string {
   };
 
   const getPointById = (pointId: string) => {
-    return readingPoints.find(p => p.id === pointId);
+    return readingPoints.find((p: ReadingPoint) => p.id === pointId);
   };
 
   const getEntryByPointId = (pointId: string) => {
-    return readingEntries.find(entry => entry.pointId === pointId);
+    return readingEntries.find((entry: BulkReadingEntry) => entry.pointId === pointId);
   };
 
   const groupPointsByReadingType = () => {
     const groups: Record<string, string[]> = {};
-    
-    selectedPoints.forEach(pointId => {
+    selectedPoints.forEach((pointId: string) => {
       const point = getPointById(pointId);
       if (point) {
         // Group by component if available, otherwise by reading type
@@ -438,7 +425,6 @@ function toLocalISOString(date: Date): string {
         groups[groupKey].push(pointId);
       }
     });
-    
     return groups;
   };
 
@@ -474,7 +460,7 @@ function toLocalISOString(date: Date): string {
             type="datetime-local"
             id="timestamp"
             value={timestamp}
-            onChange={(e) => setTimestamp(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTimestamp(e.target.value)}
             required
           />
         </div>
@@ -491,7 +477,7 @@ function toLocalISOString(date: Date): string {
                 <select
                   id="listSelect"
                   value={selectedList}
-                  onChange={(e) => handleListSelection(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleListSelection(e.target.value)}
                   required={!allowIndividualSelection}
                   className="form-control"
                 >
@@ -742,7 +728,7 @@ function toLocalISOString(date: Date): string {
                                 <select
                                   id={`value-${pointId}`}
                                   value={entry.value}
-                                  onChange={(e) => updateReadingEntry(pointId, 'value', e.target.value)}
+                                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateReadingEntry(pointId, 'value', e.target.value)}
                                   required
                                   disabled={isPointCompleted(pointId)}
                                   className={`${isPointCompleted(pointId) ? 'disabled' : ''}`}
@@ -761,7 +747,7 @@ function toLocalISOString(date: Date): string {
                                   type="number"
                                   id={`value-${pointId}`}
                                   value={entry.value}
-                                  onChange={(e) => updateReadingEntry(pointId, 'value', e.target.value)}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateReadingEntry(pointId, 'value', e.target.value)}
                                   step="0.1"
                                   required
                                   disabled={isPointCompleted(pointId)}
@@ -799,7 +785,7 @@ function toLocalISOString(date: Date): string {
                             <textarea
                               id={`notes-${pointId}`}
                               value={entry.notes}
-                              onChange={(e) => updateReadingEntry(pointId, 'notes', e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateReadingEntry(pointId, 'notes', e.target.value)}
                               placeholder={(() => {
                                 const entry = readingEntries.find(e => e.pointId === pointId);
                                 const point = getPointById(pointId);
@@ -850,7 +836,7 @@ function toLocalISOString(date: Date): string {
             <textarea
               id="submissionNotes"
               value={submissionNotes}
-              onChange={(e) => setSubmissionNotes(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSubmissionNotes(e.target.value)}
               placeholder="Optional notes about this submission for the reviewer..."
               rows={3}
             />
@@ -895,7 +881,7 @@ function toLocalISOString(date: Date): string {
       {/* Trend Analysis Modal */}
       {trendAnalysis && (
         <div className="trend-modal-overlay" onClick={closeTrendAnalysis}>
-          <div className="trend-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="trend-modal" onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
             <div className="trend-modal-header">
               <h3>📈 Trend Analysis - {trendAnalysis.reading.name}</h3>
               <button className="close-button" onClick={closeTrendAnalysis}>×</button>
